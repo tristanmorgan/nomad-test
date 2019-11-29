@@ -1,0 +1,9 @@
+consul/consul.log
+consul/data/
+counting/counting-service_linux_amd64.zip
+dashboard/dashboard-service_linux_amd64.zip
+nomad/data/
+nomad/nomad.log
+vault/init.txt
+vault/traffic-flow.txt
+vault/vault.log
