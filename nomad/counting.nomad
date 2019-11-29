@@ -1,6 +1,8 @@
 job "countdash" {
    datacenters = ["system-internal"]
    group "api" {
+     count = 1
+
      task "count" {
        driver = "docker"
 
@@ -23,7 +25,7 @@ job "countdash" {
        }
 
        config {
-         image = "counting:1574911365"
+         image = "counting:1575002457"
          port_map {
            http = "${NOMAD_HOST_PORT_http}"
          }
@@ -34,6 +36,7 @@ job "countdash" {
      }
    }
    group "web" {
+     count = 2
      task "dashboard" {
        driver = "docker"
 
@@ -56,7 +59,7 @@ job "countdash" {
        }
 
        config {
-         image = "dashboard:1574911389"
+         image = "dashboard:1575002687"
          port_map {
            http = "${NOMAD_HOST_PORT_http}"
          }

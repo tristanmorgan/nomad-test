@@ -7,3 +7,6 @@ nomad/nomad.log
 vault/init.txt
 vault/traffic-flow.txt
 vault/vault.log
+nomad/.terraform/
+nomad/terraform.tfstate
+nomad/terraform.tfstate.backup
