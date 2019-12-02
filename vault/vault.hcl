@@ -3,7 +3,7 @@ backend "consul" {
   path = "vault/"
   scheme = "http"
   token = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
-  service_tags = "urlprefix-:9997 proto=tcp"
+  service_tags = "urlprefix-vault.service.consul/"
 }
 
 listener "tcp" {

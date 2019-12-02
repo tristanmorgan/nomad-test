@@ -13,7 +13,8 @@ job "countdash" {
        }
 
        service {
-         tags = ["urlprefix-/count strip=/count"]
+         name = "counting"
+         tags = ["urlprefix-counting.service.consul:9999/"]
          port = "http"
          check {
             type     = "http"
@@ -25,7 +26,7 @@ job "countdash" {
        }
 
        config {
-         image = "counting:1575002457"
+         image = "hashicorp/counting-service:0.0.2"
          port_map {
            http = "${NOMAD_HOST_PORT_http}"
          }
@@ -47,7 +48,8 @@ job "countdash" {
        }
 
        service {
-         tags = ["urlprefix-/"]
+         name = "dashboard"
+         tags = ["urlprefix-dashboard.service.consul/"]
          port = "http"
          check {
             type     = "http"
@@ -59,13 +61,13 @@ job "countdash" {
        }
 
        config {
-         image = "dashboard:1575002687"
+         image = "hashicorp/dashboard-service:0.0.4"
          port_map {
            http = "${NOMAD_HOST_PORT_http}"
          }
        }
        env {
-         COUNTING_SERVICE_URL = "http://${NOMAD_IP_http}:9999/count"
+         COUNTING_SERVICE_URL = "http://counting.service.consul:9999/"
          PORT = "${NOMAD_PORT_http}"
        }
      }

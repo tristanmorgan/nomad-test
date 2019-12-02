@@ -23,6 +23,8 @@ job "fabio" {
       }
       service {
         port = "admin"
+        name = "fabio"
+        tags = ["urlprefix-fabio.service.consul/"]
         check {
            type     = "http"
            path     = "/health"
@@ -47,6 +49,8 @@ job "fabio" {
         FABIO_registry_consul_register_enabled = false
         FABIO_proxy_addr = ":${NOMAD_PORT_tcp};proto=tcp,:${NOMAD_PORT_http};proto=http"
         FABIO_ui_addr = ":${NOMAD_PORT_admin}"
+        FABIO_log_access_target = "stdout"
+        FABIO_proxy_strategy = "rr"
       }
     }
   }
