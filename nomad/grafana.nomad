@@ -1,21 +1,23 @@
-job "countdash" {
+job "grafana" {
   datacenters = ["system-internal"]
-  group "api" {
+  type        = "system"
+
+  group "web" {
     count = 1
 
-    task "count" {
+    task "grafana" {
       driver = "docker"
 
       resources {
         network {
-          port "http" {}
+          port "http" {
+          }
         }
       }
-
       service {
-        name = "counting"
-        tags = ["urlprefix-counting.service.consul:9999/"]
         port = "http"
+        name = "grafana"
+        tags = ["urlprefix-grafana.service.consul/"]
         check {
           type     = "http"
           path     = "/health"
@@ -26,31 +28,33 @@ job "countdash" {
       }
 
       config {
-        image = "hashicorp/counting-service:0.0.2"
+        image   = "grafana/grafana:6.5.1"
+        command = "/usr/bin/grafana"
         port_map {
           http = "${NOMAD_HOST_PORT_http}"
         }
       }
       env {
-        PORT = "${NOMAD_PORT_http}"
+        GF_SERVER_ROOT_URL         = "http://grafana.service.consul"
+        GF_http_port               = "${NOMAD_PORT_http}"
+        GF_SECURITY_ADMIN_PASSWORD = "secret"
       }
     }
-  }
-  group "web" {
-    count = 2
-    task "dashboard" {
+
+
+    task "prometheus" {
       driver = "docker"
 
       resources {
         network {
-          port "http" {}
+          port "http" {
+          }
         }
       }
-
       service {
-        name = "dashboard"
-        tags = ["urlprefix-dashboard.service.consul/"]
         port = "http"
+        name = "prometheus"
+        tags = ["urlprefix-prometheus.service.consul/"]
         check {
           type     = "http"
           path     = "/health"
@@ -61,14 +65,16 @@ job "countdash" {
       }
 
       config {
-        image = "hashicorp/dashboard-service:0.0.4"
+        image   = "prom/prometheus:v2.14.0"
+        command = "/usr/bin/prometheus"
         port_map {
           http = "${NOMAD_HOST_PORT_http}"
         }
       }
       env {
-        COUNTING_SERVICE_URL = "http://counting.service.consul:9999/"
-        PORT                 = "${NOMAD_PORT_http}"
+        GF_SERVER_ROOT_URL         = "http://prometheus.service.consul"
+        GF_http_port               = "${NOMAD_PORT_http}"
+        GF_SECURITY_ADMIN_PASSWORD = "secret"
       }
     }
   }

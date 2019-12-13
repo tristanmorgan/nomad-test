@@ -5,7 +5,7 @@ datacenter = "system-internal"
 consul {
   token   = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
   auto_advertise = true
-  tags = ["urlprefix-nomad.service.consul:9999"]
+  tags = ["urlprefix-nomad.service.consul/"]
 }
 
 

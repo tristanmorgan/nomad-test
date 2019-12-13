@@ -1,6 +1,6 @@
 # route del dns
 # route del counting
-# route add dns dns.service.consul/dns-query http://10.240.19.198:8053/
-# route add counting counting.service.consul/ http://10.240.19.198:23284/
-route add nomad nomad.service.consul/ http://10.240.19.198:4646/
-route add consul consul.service.consul/ http://10.240.19.198:8500/
+# route add dns dns.service.consul/dns-query http://10.240.19.204:8053/
+# route add counting counting.service.consul/ http://10.240.19.204:23284/
+route add nomad nomad.service.consul/ http://10.240.19.204:4646/
+route add consul consul.service.consul/ http://10.240.19.204:8500/
