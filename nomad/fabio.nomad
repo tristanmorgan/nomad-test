@@ -11,7 +11,7 @@ job "fabio" {
       resources {
         network {
           port "http" {
-            static = 9999
+            static = 80
           }
           port "admin" {
             static = 9998

@@ -14,7 +14,7 @@ job "countdash" {
 
       service {
         name = "counting"
-        tags = ["urlprefix-counting.service.consul:9999/"]
+        tags = ["urlprefix-counting.service.consul/"]
         port = "http"
         check {
           type     = "http"
@@ -67,7 +67,7 @@ job "countdash" {
         }
       }
       env {
-        COUNTING_SERVICE_URL = "http://counting.service.consul:9999/"
+        COUNTING_SERVICE_URL = "http://counting.service.consul/"
         PORT                 = "${NOMAD_PORT_http}"
       }
     }

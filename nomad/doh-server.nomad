@@ -31,21 +31,24 @@ job "doh" {
       template {
         data = <<EOH
 listen = [
-    ":8053",
+    ":{{ env `NOMAD_PORT_http` }}",
 ]
 path = "/dns-query"
 upstream = [
-    "udp:{{ env "NOMAD_IP_http" }}:8600", 
+    "udp:{{ env `NOMAD_IP_http` }}:8600", 
 ]
 verbose = false
 log_guessed_client_ip = false
         EOH
 
-        destination = "doh-server.conf"
+        destination = "${NOMAD_TASK_DIR}/doh-server.conf"
       }
 
       config {
-        image = "doh-server:1576213280"
+        args = [
+          "-conf", "${NOMAD_TASK_DIR}/doh-server.conf",
+        ]
+        image = "doh-server:1578884285"
         port_map {
           http = "${NOMAD_HOST_PORT_http}"
         }
