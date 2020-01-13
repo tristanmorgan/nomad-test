@@ -1,4 +1,4 @@
-# route del dns
-# route del counting
-route add nomad nomad.service.consul/ http://10.240.16.216:4646/
-route add consul consul.service.consul/ http://10.240.16.216:8500/
+route del nomad
+route del nomad-client
+route add nomad nomad.service.consul/ http://10.240.20.213:4646/
+route add consul consul.service.consul/ http://10.240.20.213:8500/
