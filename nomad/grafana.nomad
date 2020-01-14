@@ -109,9 +109,6 @@ scrape_configs:
           http = "${NOMAD_HOST_PORT_http}"
         }
       }
-      env {
-        PM_CONFIG = "/etc/prometheus/prometheus.yml"
-      }
     }
   }
 }
