@@ -1,5 +1,3 @@
-data_dir = "/Users/tristan/Vibrato/apps/nomad-test/nomad/data"
-
 datacenter = "system-internal"
 
 disable_update_check = true
