@@ -1,0 +1,76 @@
+# frozen_string_literal: true
+
+require 'rubocop/rake_task'
+
+RuboCop::RakeTask.new do |rubocop|
+  rubocop.options = %w[-D --enable-pending-cops]
+  rubocop.requires << 'rubocop-rake'
+end
+
+desc 'Run all style checks and unit tests'
+task default: ['rubocop', 'terraform:test']
+
+TF_ACTIONS = %w[validate plan fmt refresh show output].freeze
+EXTRA_ACTIONS = [
+  { name: 'fmt-check', command: 'terraform fmt -check' },
+  { name: 'apply', command: 'terraform apply -auto-approve=true -parallelism=1' },
+  { name: 'lint', command: 'tflint ' },
+  { name: 'destroy', command: 'terraform destroy -auto-approve' },
+  { name: 'document', command: 'terraform-docs markdown . | tee README.md' },
+  { name: 'init', command: 'terraform init -upgrade=true' }
+].freeze
+
+namespace :terraform do
+  desc 'Run Terraform tests'
+  task test: ['terraform:fmt-check', 'terraform:validate', 'terraform:plan']
+
+  desc 'Run Terraform test then apply'
+  task deploy: ['terraform:test', 'terraform:apply']
+
+  TF_ACTIONS.each do |action|
+    desc "Run Terraform #{action}"
+    task action do
+      puts "Running #{action}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new("terraform #{action}")
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+  end
+
+  EXTRA_ACTIONS.each do |extra|
+    desc "Run Terraform #{extra[:name]}"
+    task extra[:name] do
+      puts "Running #{extra[:name]}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(extra[:command])
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+  end
+end
+
+NOMAD_BUILDS = %w[counting doh-server fabio grafana https-echo].freeze
+namespace :nomad do
+  NOMAD_BUILDS.each do |target|
+    desc "Run Nomad format-#{target}"
+    task target do
+      puts "Running Nomad format on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "mv #{target}.nomad #{target}.tf && terraform fmt #{target}.tf && mv #{target}.tf #{target}.nomad"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+  end
+
+  desc 'Run Nomad format all'
+  task all: ['nomad:counting', 'nomad:doh-server', 'nomad:fabio', 'nomad:grafana', 'nomad:https-echo']
+end

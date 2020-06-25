@@ -11,3 +11,4 @@ nomad/.terraform/
 nomad/terraform.tfstate
 nomad/terraform.tfstate.backup
 doh-server/doh-server
+Gemfile.lock
