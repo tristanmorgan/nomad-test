@@ -16,7 +16,7 @@ data_dir             = "./data"
 datacenter           = "system-internal"
 disable_host_node_id = true
 disable_update_check = true
-encrypt              = "3a6nE3qvOSwaPVcg73nxLQ=="
+encrypt              = "GkSMCC4pHEKGEiQ/eMN0k7c3tfMa4u/5fiwOFeS3Qcc="
 leave_on_terminate   = true
 log_level            = "INFO"
 ports = {

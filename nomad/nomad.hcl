@@ -21,7 +21,7 @@ server {
 }
 
 vault {
-  enabled = false
+  enabled = true
   tls_skip_verify = true
-  token = "s.g3ezS8iAnvoBnQ8RVdGWzMoc"
+  token = "s.RCD6ZraZfw69az8B9Reiwf5P"
 }

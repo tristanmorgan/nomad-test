@@ -48,7 +48,7 @@ log_guessed_client_ip = false
         args = [
           "-conf", "${NOMAD_TASK_DIR}/doh-server.conf",
         ]
-        image = "doh-server:1578884285"
+        image = "doh-server:1592962949"
         port_map {
           http = "${NOMAD_HOST_PORT_http}"
         }
