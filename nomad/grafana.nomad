@@ -5,6 +5,47 @@ job "grafana" {
   group "web" {
     count = 1
 
+    task "statsd" {
+      driver = "docker"
+
+      resources {
+        network {
+          # 9102 9125 9125/udp
+          port "http" {
+          }
+          port "statsd" {
+            static = 9125
+          }
+        }
+      }
+      service {
+        port = "statsd"
+        name = "statsd"
+        tags = ["urlprefix-statsd.service.consul/"]
+        check {
+          type     = "http"
+          path     = "/health"
+          port     = "http"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      config {
+        image   = "prom/statsd-exporter:v0.16.0"
+        args = [
+          "--web.telemetry-path=/v1/metrics",
+          "--web.listen-address=:${NOMAD_PORT_http}",
+          "--statsd.listen-tcp=:${NOMAD_PORT_statsd}",
+          "--statsd.listen-udp=:${NOMAD_PORT_statsd}"
+        ]
+        port_map {
+          http   = "${NOMAD_PORT_http}"
+          statsd = "${NOMAD_PORT_statsd}"
+        }
+      }
+    }
+
     task "grafana" {
       driver = "docker"
 
@@ -90,6 +131,14 @@ scrape_configs:
     static_configs:
       - targets:
           - {{ env `NOMAD_IP_http` }}:4646
+  - job_name: statsd
+    metrics_path: "/v1/metrics"
+    params:
+      format:
+        - "prometheus"
+    static_configs:
+      - targets:
+          - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_statsd_http` }}
   EOH
 
         destination = "${NOMAD_TASK_DIR}/consul_sd_config.yml"
@@ -98,7 +147,6 @@ scrape_configs:
       config {
         image = "prom/prometheus:v2.15.2"
         args = [
-          # "--config.file=/etc/prometheus/prometheus.yml",
           "--storage.tsdb.path=/prometheus",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",
           "--web.console.templates=/usr/share/prometheus/consoles",

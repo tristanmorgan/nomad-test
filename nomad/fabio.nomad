@@ -47,6 +47,9 @@ job "fabio" {
         FABIO_ui_addr                       = ":${NOMAD_PORT_admin}"
         FABIO_log_access_target             = "stdout"
         FABIO_proxy_strategy                = "rr"
+        # FABIO_proxy_cs                      = "cs=consul.service.consul;type=vault-pki;cert=pki/issue/consul"
+        FABIO_metrics_target                = "statsd"
+        FABIO_metrics_statsd_addr           = "${NOMAD_IP_admin}:9125"
       }
     }
   }
