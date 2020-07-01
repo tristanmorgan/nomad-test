@@ -5,21 +5,22 @@ job "https" {
   group "echo" {
     count = 1
 
-    task "web" {
+    task "redirect" {
       driver = "docker"
 
       resources {
         network {
           port "http" {
+            static = 80
           }
         }
       }
       service {
-        port = "http"
         name = "https-echo"
-        tags = ["urlprefix-:9999/"]
+        port = "http"
         check {
-          type     = "tcp"
+          type     = "http"
+          path     = "/health"
           port     = "http"
           interval = "10s"
           timeout  = "2s"
@@ -27,12 +28,12 @@ job "https" {
       }
 
       config {
-        image   = "vibrato/https-echo:v0.0.3"
+        image   = "vibrato/https-echo:v0.0.5"
         args = [
           "-listen",":${NOMAD_PORT_http}",
         ]
         port_map {
-          http  = "${NOMAD_PORT_http}"
+          http  = "${NOMAD_HOST_PORT_http}"
         }
       }
     }
