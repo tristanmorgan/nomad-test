@@ -33,8 +33,8 @@ job "fabio" {
       config {
         image = "fabiolb/fabio:1.5.13-go1.13.4"
         port_map {
-          https = "${NOMAD_PORT_https}"
-          admin = "${NOMAD_PORT_admin}"
+          https = "${NOMAD_HOST_PORT_https}"
+          admin = "${NOMAD_HOST_PORT_admin}"
         }
       }
       vault {

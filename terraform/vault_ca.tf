@@ -100,8 +100,13 @@ resource "vault_pki_secret_backend_role" "consul" {
   allowed_domains  = ["consul"]
   allow_subdomains = true
   allow_localhost  = true
-  ttl              = "72h"
-  max_ttl          = "72h"
+  ttl              = "259200"
+  max_ttl          = "259200"
   key_bits         = 256
   key_type         = "ec"
+  key_usage = [
+    "DigitalSignature",
+    "KeyAgreement",
+    "KeyEncipherment",
+  ]
 }
