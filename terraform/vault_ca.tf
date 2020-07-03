@@ -22,8 +22,8 @@ resource "vault_mount" "rootca" {
   path        = "rootca"
   description = "Host a Root CA"
 
-  default_lease_ttl_seconds = 3153600
-  max_lease_ttl_seconds     = 31536000
+  default_lease_ttl_seconds = 31536000
+  max_lease_ttl_seconds     = 315360000
 }
 
 resource "vault_pki_secret_backend_config_urls" "rootca" {
@@ -84,8 +84,8 @@ resource "vault_pki_secret_backend_root_sign_intermediate" "intca" {
   csr                  = vault_pki_secret_backend_intermediate_cert_request.intca.csr
   common_name          = "Intermediate CA"
   exclude_cn_from_sans = true
-  ou                   = "My OU"
-  organization         = "My organization"
+  ou                   = "Uplink Engineering"
+  organization         = "Introversion Pty Ltd"
 }
 
 resource "vault_pki_secret_backend_intermediate_set_signed" "intca" {

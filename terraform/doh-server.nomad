@@ -1,7 +1,5 @@
 job "doh" {
   datacenters = ["system-internal"]
-  type        = "system"
-
   group "server" {
     count = 1
 
@@ -48,7 +46,7 @@ log_guessed_client_ip = false
         args = [
           "-conf", "${NOMAD_TASK_DIR}/doh-server.conf",
         ]
-        image = "doh-server:1592962949"
+        image = "doh-server:2.2.2"
         port_map {
           http = "${NOMAD_HOST_PORT_http}"
         }
