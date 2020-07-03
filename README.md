@@ -1,20 +1,47 @@
 # Nomad test
 
+Uses Nomad, Consul and Vault on localhost to run some containers and demo features.
+
+## Requirements
+
+* Docker for mac
+* Consul
+* Nomad
+* Terraform
+* Vault
 
 ## Usage
 
+To use the consul DNS for lookups create a file called /etc/resolver/consul with the contents:
+
+    nameserver 127.0.0.1
+    port 8600
+
+setup your environment
+
+    export CONSUL_HTTP_ADDR=127.0.0.1:8500
+    export CONSUL_HTTP_TOKEN=ab1469ec-078c-42cf-bb7b-6ef2a52360ea
+    export NOMAD_ADDR=http://127.0.0.1:4646
+    export VAULT_ADDR=http://127.0.0.1:8200
+
 run Docker for mac.
+
+run ./build.sh in /doh-server
 
 run ./start.sh in /consul
 
+run ./start.sh in /vault
+
+(then init, unseal and export VAULT_TOKEN)
+
 run ./start.sh in /nomad
 
-then
+then finally
 
-terraform init and apply in /nomad
+terraform init and apply in /terraform
 
-that should get almost all running.
+that should get most running.
 
-only thing is the doh-server container you gotta build in /doh-server.
+## Notes
 
-
+Consul and Nomad will run a single node and persist data in a local folder, Vault uses Consul for its storage. Fabio Load-balancer will use hostnames to route traffic so the consul DNS is recommended. port 80 should get a redirect to https on 443. most services use your lan IP address localhost for a container is inside the container so won't work.

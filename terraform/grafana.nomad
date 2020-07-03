@@ -1,7 +1,5 @@
 job "grafana" {
   datacenters = ["system-internal"]
-  type        = "system"
-
   group "web" {
     count = 1
 
@@ -40,8 +38,8 @@ job "grafana" {
           "--statsd.listen-udp=:${NOMAD_PORT_statsd}"
         ]
         port_map {
-          http   = "${NOMAD_PORT_http}"
-          statsd = "${NOMAD_PORT_statsd}"
+          http   = "${NOMAD_HOST_PORT_http}"
+          statsd = "${NOMAD_HOST_PORT_statsd}"
         }
       }
     }
@@ -79,6 +77,7 @@ job "grafana" {
         GF_SERVER_ROOT_URL         = "http://grafana.service.consul"
         GF_SERVER_HTTP_PORT        = "${NOMAD_PORT_http}"
         GF_SECURITY_ADMIN_PASSWORD = "secret"
+        GF_METRICS_ENABLED         = "true"
       }
     }
 
@@ -139,6 +138,14 @@ scrape_configs:
     static_configs:
       - targets:
           - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_statsd_http` }}
+  - job_name: grafana
+    metrics_path: "/metrics"
+    params:
+      format:
+        - "prometheus"
+    static_configs:
+      - targets:
+          - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_grafana_http` }}
   EOH
 
         destination = "${NOMAD_TASK_DIR}/consul_sd_config.yml"

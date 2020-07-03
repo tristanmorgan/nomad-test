@@ -11,5 +11,9 @@ listener "tcp" {
   tls_disable = true
 }
 
+telemetry {
+  statsd_address = "10.10.10.133:9125"
+}
+
 ui = true
 raw_storage_endpoint = true

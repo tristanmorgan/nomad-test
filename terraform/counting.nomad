@@ -8,7 +8,9 @@ job "countdash" {
 
       resources {
         network {
-          port "http" {}
+          port "http" {
+            static = 8333
+          }
         }
       }
 
@@ -67,7 +69,7 @@ job "countdash" {
         }
       }
       env {
-        COUNTING_SERVICE_URL = "http://counting.service.consul/"
+        COUNTING_SERVICE_URL = "http://counting.service.consul:8333/"
         PORT                 = "${NOMAD_PORT_http}"
       }
     }
