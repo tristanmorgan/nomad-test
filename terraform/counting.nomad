@@ -28,7 +28,7 @@ job "countdash" {
       }
 
       config {
-        image = "hashicorp/counting-service:0.0.2"
+        image = "hashicorpnomad/counter-api:v2"
         port_map {
           http = "${NOMAD_HOST_PORT_http}"
         }
@@ -63,7 +63,7 @@ job "countdash" {
       }
 
       config {
-        image = "hashicorp/dashboard-service:0.0.4"
+        image = "hashicorpnomad/counter-dashboard:v2"
         port_map {
           http = "${NOMAD_HOST_PORT_http}"
         }

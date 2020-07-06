@@ -10,13 +10,6 @@
 #  vault_pki_secret_backend_root_sign_intermediate
 #  vault_pki_secret_backend_sign
 
-
-#  vault secrets tune -max-lease-ttl=87600h rootca
-#  vault write rootca/config/urls issuing_certificates="https://vault.service.consul:8200/v1/rootca/ca" crl_distribution_points="https://vault.service.consul:8200/v1/rootca/crl"
-#  vault write rootca/roles/consul allowed_domains="consul" allow_subdomains="true" allow_localhost="true" ttl="8760h" max_ttl="87600h" key_bits=521 key_type=ec
-#
-#  vault write -format=json rootca/root/generate/internal common_name="$USER self-signed Root CA" ttl=8760h format=pem_bundle key_bits=521 key_type=ec > consul.json
-
 resource "vault_mount" "rootca" {
   type        = "pki"
   path        = "rootca"
@@ -28,8 +21,8 @@ resource "vault_mount" "rootca" {
 
 resource "vault_pki_secret_backend_config_urls" "rootca" {
   backend                 = vault_mount.rootca.path
-  issuing_certificates    = ["https://vault.service.consul/v1/rootca/ca"]
-  crl_distribution_points = ["https://vault.service.consul/v1/rootca/crl"]
+  issuing_certificates    = ["http://vault.service.consul:8200/v1/rootca/ca"]
+  crl_distribution_points = ["http://vault.service.consul:8200/v1/rootca/crl"]
 }
 
 resource "vault_pki_secret_backend_root_cert" "rootca" {
@@ -60,17 +53,19 @@ resource "vault_mount" "intca" {
 
 resource "vault_pki_secret_backend_config_urls" "intca" {
   backend                 = vault_mount.intca.path
-  issuing_certificates    = ["https://vault.service.consul/v1/intca/ca"]
-  crl_distribution_points = ["https://vault.service.consul/v1/intca/crl"]
+  issuing_certificates    = ["http://vault.service.consul:8200/v1/intca/ca"]
+  crl_distribution_points = ["http://vault.service.consul:8200/v1/intca/crl"]
 }
 
 resource "vault_pki_secret_backend_intermediate_cert_request" "intca" {
   backend = vault_mount.intca.path
 
-  type        = "internal"
-  common_name = "app.test.test"
-  key_type    = "ec"
-  key_bits    = 224
+  type         = "internal"
+  common_name  = "Tristan Intermediate CA"
+  key_type     = "ec"
+  key_bits     = 256
+  ou           = "Uplink Engineering"
+  organization = "Introversion Pty Ltd"
 
   depends_on = [
     vault_pki_secret_backend_config_urls.intca,
@@ -82,10 +77,11 @@ resource "vault_pki_secret_backend_root_sign_intermediate" "intca" {
   backend = vault_mount.rootca.path
 
   csr                  = vault_pki_secret_backend_intermediate_cert_request.intca.csr
-  common_name          = "Intermediate CA"
+  common_name          = vault_pki_secret_backend_intermediate_cert_request.intca.common_name
   exclude_cn_from_sans = true
-  ou                   = "Uplink Engineering"
-  organization         = "Introversion Pty Ltd"
+  use_csr_values       = true
+  ou                   = vault_pki_secret_backend_intermediate_cert_request.intca.ou
+  organization         = vault_pki_secret_backend_intermediate_cert_request.intca.organization
 }
 
 resource "vault_pki_secret_backend_intermediate_set_signed" "intca" {

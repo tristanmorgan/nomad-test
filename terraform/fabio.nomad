@@ -38,7 +38,7 @@ job "fabio" {
         }
       }
       vault {
-        policies = ["fabio", "default"]
+        policies = ["fabio"]
 
         change_mode   = "signal"
         change_signal = "SIGHUP"
