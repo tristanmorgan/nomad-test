@@ -28,13 +28,3 @@ resource "consul_keys" "fabio_config" {
     value = file("${path.module}/fabio-config.txt")
   }
 }
-
-resource "consul_acl_policy" "anonymous" {
-  name  = "anonymous"
-  rules = file("${path.module}/anonymous_acl.hcl")
-}
-
-resource "consul_acl_token_policy_attachment" "attachment" {
-  token_id = "00000000-0000-0000-0000-000000000002"
-  policy   = consul_acl_policy.anonymous.name
-}

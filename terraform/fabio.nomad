@@ -32,6 +32,7 @@ job "fabio" {
 
       config {
         image = "fabiolb/fabio:1.5.13-go1.13.4"
+        args  = ["-cfg", "${NOMAD_TASK_DIR}/fabio.properties"]
         port_map {
           https = "${NOMAD_HOST_PORT_https}"
           admin = "${NOMAD_HOST_PORT_admin}"
@@ -43,12 +44,17 @@ job "fabio" {
         change_mode   = "signal"
         change_signal = "SIGHUP"
       }
+      template {
+        data = <<EOH
+        registry.consul.token = {{with secret "consul/creds/fabio"}}{{.Data.token}}{{end}}
+          EOH
+
+        destination = "${NOMAD_TASK_DIR}/fabio.properties"
+      }
       env {
         FABIO_insecure                      = true
         FABIO_registry_consul_addr          = "${NOMAD_IP_admin}:8500"
-        FABIO_registry_consul_token         = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
         FABIO_registry_consul_register_addr = "${NOMAD_IP_admin}:${NOMAD_HOST_PORT_admin}"
-        # FABIO_proxy_addr                    = ":${NOMAD_PORT_http};proto=http,:${NOMAD_PORT_https};cs=service-consul"
         FABIO_proxy_addr                    = ":${NOMAD_PORT_https};cs=service-consul"
         FABIO_ui_addr                       = ":${NOMAD_PORT_admin}"
         FABIO_log_access_target             = "stdout"

@@ -10,3 +10,7 @@ path "auth/token/lookup-self" {
 path "auth/token/renew-self" {
   capabilities = ["update"]
 }
+
+path "consul/creds/fabio" {
+  capabilities = ["read"]
+}
