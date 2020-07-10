@@ -1,15 +1,3 @@
-#  vault_pki_secret_backend
-#  vault_pki_secret_backend_cert
-#  vault_pki_secret_backend_config_ca
-#  vault_pki_secret_backend_config_urls
-#  vault_pki_secret_backend_crl_config
-#  vault_pki_secret_backend_intermediate_cert_request
-#  vault_pki_secret_backend_intermediate_set_signed
-#  vault_pki_secret_backend_role
-#  vault_pki_secret_backend_root_cert
-#  vault_pki_secret_backend_root_sign_intermediate
-#  vault_pki_secret_backend_sign
-
 resource "vault_mount" "rootca" {
   type        = "pki"
   path        = "rootca"
@@ -105,4 +93,10 @@ resource "vault_pki_secret_backend_role" "consul" {
     "KeyAgreement",
     "KeyEncipherment",
   ]
+}
+
+resource "local_file" "ca_cert" {
+  content         = vault_pki_secret_backend_root_cert.rootca.issuing_ca
+  filename        = "${path.module}/ca_cert.pem"
+  file_permission = "644"
 }
