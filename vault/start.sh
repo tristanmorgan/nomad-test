@@ -2,4 +2,5 @@
 
 IP_ADDRESS=$(ipconfig getifaddr en0)
 export VAULT_API_ADDR=http://$IP_ADDRESS:8200
-vault server -config=vault.hcl 2>&1 > vault.log &
+export VAULT_CLUSTER_ADDR=https://$IP_ADDRESS:8201
+vault server -config=vault.hcl 2> vault.err > vault.log &

@@ -146,6 +146,15 @@ scrape_configs:
     static_configs:
       - targets:
           - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_grafana_http` }}
+  - job_name: vault
+    metrics_path: "/v1/sys/metrics"
+    params:
+      format:
+        - "prometheus"
+    scheme: http
+    static_configs:
+      - targets:
+        - {{ env `NOMAD_IP_http` }}:8200
   EOH
 
         destination = "${NOMAD_TASK_DIR}/consul_sd_config.yml"
