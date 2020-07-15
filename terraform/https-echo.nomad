@@ -28,12 +28,12 @@ job "https" {
       }
 
       config {
-        image   = "vibrato/https-echo:v0.0.5"
+        image = "vibrato/https-echo:v0.0.5"
         args = [
-          "-listen",":${NOMAD_PORT_http}",
+          "-listen", ":${NOMAD_PORT_http}",
         ]
         port_map {
-          http  = "${NOMAD_HOST_PORT_http}"
+          http = "${NOMAD_HOST_PORT_http}"
         }
       }
     }

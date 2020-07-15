@@ -30,7 +30,7 @@ job "grafana" {
       }
 
       config {
-        image   = "prom/statsd-exporter:v0.16.0"
+        image = "prom/statsd-exporter:v0.16.0"
         args = [
           "--web.telemetry-path=/v1/metrics",
           "--web.listen-address=:${NOMAD_PORT_http}",

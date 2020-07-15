@@ -62,7 +62,7 @@ job "fabio" {
         FABIO_proxy_cs                      = "cs=service-consul;type=vault-pki;cert=intca/issue/consul"
         FABIO_metrics_target                = "statsd"
         FABIO_metrics_statsd_addr           = "${NOMAD_IP_admin}:9125"
-        VAULT_ADDR                          = "http://10.10.10.133:8200"
+        VAULT_ADDR                          = "http://${NOMAD_IP_admin}:8200"
       }
     }
   }
