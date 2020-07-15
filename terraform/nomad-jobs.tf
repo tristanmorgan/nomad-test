@@ -1,9 +1,3 @@
-terraform {
-  backend "consul" {
-    path = "test/terraform_state"
-  }
-}
-
 resource "vault_policy" "fabio" {
   name = "fabio"
 
