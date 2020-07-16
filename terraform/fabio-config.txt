@@ -1,4 +1,4 @@
 route del nomad
 route del nomad-client
-route add nomad nomad.service.consul/ http://10.10.10.133:4646/
-route add consul consul.service.consul/ http://10.10.10.133:8500/
+route add nomad nomad.service.consul/ http://${ipaddress}:4646/
+route add consul consul.service.consul/ http://${ipaddress}:8500/

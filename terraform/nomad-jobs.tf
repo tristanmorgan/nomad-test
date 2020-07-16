@@ -1,3 +1,22 @@
+resource "vault_mount" "nomad" {
+  path        = "nomad"
+  type        = "nomad"
+  description = "Nomad Token backend"
+}
+
+resource "vault_generic_secret" "nomad_config" {
+  path = "${vault_mount.nomad.path}/config/access"
+
+  data_json = <<EOT
+{
+  "address": "http://${data.external.local_info.result.ipaddress}:4646",
+  "token": "${data.external.local_info.result.nomadtoken}"
+}
+EOT
+
+  disable_read = true
+}
+
 resource "vault_policy" "fabio" {
   name = "fabio"
 
@@ -18,7 +37,11 @@ resource "nomad_job" "everything" {
 
 resource "consul_keys" "fabio_config" {
   key {
-    path  = "fabio/config"
-    value = file("${path.module}/fabio-config.txt")
+    path = "fabio/config"
+    value = templatefile("${path.module}/fabio-config.txt",
+      {
+        ipaddress = data.external.local_info.result.ipaddress
+      }
+    )
   }
 }

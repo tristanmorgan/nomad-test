@@ -2,9 +2,9 @@ resource "vault_consul_secret_backend" "consul" {
   path        = "consul"
   description = "Access Consul tokens"
 
-  address                   = "10.10.10.133:8500"
+  address                   = "${data.external.local_info.result.ipaddress}:8500"
   scheme                    = "http"
-  token                     = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
+  token                     = data.external.local_info.result.consultoken
   default_lease_ttl_seconds = "36000"
   max_lease_ttl_seconds     = "2764800"
 }
