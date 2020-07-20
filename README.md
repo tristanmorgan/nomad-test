@@ -20,7 +20,6 @@ To use the consul DNS for lookups create a file called /etc/resolver/consul with
 setup your environment
 
     export CONSUL_HTTP_ADDR=127.0.0.1:8500
-    export CONSUL_HTTP_TOKEN=ab1469ec-078c-42cf-bb7b-6ef2a52360ea
     export NOMAD_ADDR=http://127.0.0.1:4646
     export VAULT_ADDR=http://127.0.0.1:8200
 
@@ -30,13 +29,17 @@ run ./build.sh in /doh-server
 
 run ./start.sh in /consul
 
+(then export CONSUL_HTTP_TOKEN)
+
 run ./start.sh in /vault
 
 (then init, unseal and export VAULT_TOKEN)
 
 run ./start.sh in /nomad
 
-then finally
+(then export NOMAD_TOKEN)
+
+Finally:
 
 terraform init and apply in /terraform
 

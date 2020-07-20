@@ -8,7 +8,7 @@ RuboCop::RakeTask.new do |rubocop|
 end
 
 desc 'Run all style checks and unit tests'
-task default: ['rubocop', 'terraform:test']
+task default: ['rubocop', 'nomad:validate-all', 'terraform:test']
 
 TF_ACTIONS = %w[validate plan fmt refresh show output].freeze
 EXTRA_ACTIONS = [
@@ -54,11 +54,11 @@ namespace :terraform do
   end
 end
 
-NOMAD_BUILDS = %w[counting doh-server fabio grafana https-echo].freeze
+NOMAD_BUILDS = %w[counting doh-server fabio grafana https-echo batch].freeze
 namespace :nomad do
   NOMAD_BUILDS.each do |target|
     desc "Run Nomad format-#{target}"
-    task target do
+    task "fmt-#{target}" do
       puts "Running Nomad format on #{target}"
       require 'mixlib/shellout'
       cmd = Mixlib::ShellOut.new(
@@ -69,8 +69,32 @@ namespace :nomad do
       cmd.run_command
       cmd.error!
     end
+
+    desc "Run Nomad validate-#{target}"
+    task "validate-#{target}" do
+      puts "Running Nomad validate on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "nomad job validate #{target}.nomad"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
   end
 
   desc 'Run Nomad format all'
-  task all: ['nomad:counting', 'nomad:doh-server', 'nomad:fabio', 'nomad:grafana', 'nomad:https-echo']
+  task 'fmt-all': [
+    'nomad:fmt-counting', 'nomad:fmt-doh-server',
+    'nomad:fmt-fabio', 'nomad:fmt-grafana',
+    'nomad:fmt-https-echo', 'nomad:fmt-batch'
+  ]
+
+  desc 'Run Nomad validate all'
+  task 'validate-all': [
+    'nomad:validate-counting', 'nomad:validate-doh-server',
+    'nomad:validate-fabio', 'nomad:validate-grafana',
+    'nomad:validate-https-echo', 'nomad:validate-batch'
+  ]
 end

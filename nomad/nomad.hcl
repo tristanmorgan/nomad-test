@@ -2,10 +2,13 @@ datacenter = "system-internal"
 
 disable_update_check = true
 
+acl {
+  enabled = true
+}
+
 consul {
   auto_advertise = true
 }
-
 
 client {
   enabled = true
