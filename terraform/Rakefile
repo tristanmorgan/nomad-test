@@ -8,7 +8,7 @@ RuboCop::RakeTask.new do |rubocop|
 end
 
 desc 'Run all style checks and unit tests'
-task default: ['rubocop', 'nomad:validate-all', 'terraform:test']
+task default: ['rubocop', 'nomad:fmt-all', 'nomad:validate-all', 'terraform:test']
 
 TF_ACTIONS = %w[validate plan fmt refresh show output].freeze
 EXTRA_ACTIONS = [
@@ -25,7 +25,7 @@ namespace :terraform do
   task test: ['terraform:fmt-check', 'terraform:validate', 'terraform:plan']
 
   desc 'Run Terraform test then apply'
-  task deploy: ['terraform:test', 'terraform:apply']
+  task deploy: ['nomad:validate-all', 'terraform:test', 'terraform:apply']
 
   TF_ACTIONS.each do |action|
     desc "Run Terraform #{action}"
@@ -54,7 +54,7 @@ namespace :terraform do
   end
 end
 
-NOMAD_BUILDS = %w[counting doh-server fabio grafana https-echo batch].freeze
+NOMAD_BUILDS = %w[counting doh-server fabio monitoring https-echo batch].freeze
 namespace :nomad do
   NOMAD_BUILDS.each do |target|
     desc "Run Nomad format-#{target}"
@@ -85,16 +85,8 @@ namespace :nomad do
   end
 
   desc 'Run Nomad format all'
-  task 'fmt-all': [
-    'nomad:fmt-counting', 'nomad:fmt-doh-server',
-    'nomad:fmt-fabio', 'nomad:fmt-grafana',
-    'nomad:fmt-https-echo', 'nomad:fmt-batch'
-  ]
+  task 'fmt-all': NOMAD_BUILDS.map { |name| "nomad:fmt-#{name}" }
 
   desc 'Run Nomad validate all'
-  task 'validate-all': [
-    'nomad:validate-counting', 'nomad:validate-doh-server',
-    'nomad:validate-fabio', 'nomad:validate-grafana',
-    'nomad:validate-https-echo', 'nomad:validate-batch'
-  ]
+  task 'validate-all': NOMAD_BUILDS.map { |name| "nomad:validate-#{name}" }
 end

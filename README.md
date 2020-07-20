@@ -45,6 +45,14 @@ terraform init and apply in /terraform
 
 that should get most running.
 
+in the terraform folder is a ca_cert.pem that if you import to your keychain you can access the TLS endpoints with out invalid cert warnings.
+
 ## Notes
 
 Consul and Nomad will run a single node and persist data in a local folder, Vault uses Consul for its storage. Fabio Load-balancer will use hostnames to route traffic so the consul DNS is recommended. port 80 should get a redirect to https on 443. most services use your lan IP address localhost for a container is inside the container so won't work.
+
+## Shutdown
+
+running the following will stop all the containers and allow a clean shutdown of nomad.
+
+terraform destroy -target nomad_job.everything

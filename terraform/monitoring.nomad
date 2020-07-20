@@ -1,6 +1,6 @@
-job "grafana" {
+job "monitoring" {
   datacenters = ["system-internal"]
-  group "web" {
+  group "telemetry" {
     count = 1
 
     task "statsd" {
@@ -44,43 +44,6 @@ job "grafana" {
       }
     }
 
-    task "grafana" {
-      driver = "docker"
-
-      resources {
-        network {
-          port "http" {
-          }
-        }
-      }
-      service {
-        port = "http"
-        name = "grafana"
-        tags = ["urlprefix-grafana.service.consul/"]
-        check {
-          type     = "http"
-          path     = "/health"
-          port     = "http"
-          interval = "10s"
-          timeout  = "2s"
-        }
-      }
-
-      config {
-        image   = "grafana/grafana:6.5.2"
-        command = "/usr/bin/grafana"
-        port_map {
-          http = "${NOMAD_HOST_PORT_http}"
-        }
-      }
-      env {
-        GF_SERVER_ROOT_URL         = "http://grafana.service.consul"
-        GF_SERVER_HTTP_PORT        = "${NOMAD_PORT_http}"
-        GF_SECURITY_ADMIN_PASSWORD = "secret"
-        GF_METRICS_ENABLED         = "true"
-      }
-    }
-
     task "prometheus" {
       driver = "docker"
 
@@ -103,6 +66,13 @@ job "grafana" {
         }
       }
 
+      vault {
+        policies = ["prom"]
+
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+      }
+
       template {
         data = <<EOH
 ---
@@ -112,13 +82,21 @@ scrape_configs:
     static_configs:
       - targets:
           - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_HOST_PORT_http` }}
+  - job_name: statsd
+    metrics_path: "/v1/metrics"
+    params:
+      format:
+        - "prometheus"
+    static_configs:
+      - targets:
+          - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_statsd_http` }}
   - job_name: consul
     metrics_path: "/v1/agent/metrics"
     params:
       format:
         - "prometheus"
       token:
-        - "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
+        - "{{with secret "consul/creds/prom"}}{{.Data.token}}{{end}}"
     static_configs:
       - targets:
           - {{ env `NOMAD_IP_http` }}:8500
@@ -130,22 +108,6 @@ scrape_configs:
     static_configs:
       - targets:
           - {{ env `NOMAD_IP_http` }}:4646
-  - job_name: statsd
-    metrics_path: "/v1/metrics"
-    params:
-      format:
-        - "prometheus"
-    static_configs:
-      - targets:
-          - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_statsd_http` }}
-  - job_name: grafana
-    metrics_path: "/metrics"
-    params:
-      format:
-        - "prometheus"
-    static_configs:
-      - targets:
-          - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_grafana_http` }}
   - job_name: vault
     metrics_path: "/v1/sys/metrics"
     params:

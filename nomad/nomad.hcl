@@ -23,6 +23,12 @@ server {
 }
 
 vault {
-  enabled = true
+  enabled         = true
   tls_skip_verify = true
+}
+
+telemetry {
+  statsd_address = "10.10.10.133:9125"
+  publish_allocation_metrics = true
+  publish_node_metrics       = true
 }

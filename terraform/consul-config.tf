@@ -52,3 +52,22 @@ resource "vault_consul_secret_backend_role" "fabio" {
     "fabio",
   ]
 }
+
+resource "consul_acl_policy" "prom" {
+  name        = "prom"
+  datacenters = ["system-internal"]
+  rules       = <<-RULE
+agent_prefix "" {
+  policy = "read"
+}
+    RULE
+}
+
+resource "vault_consul_secret_backend_role" "prom" {
+  name    = "prom"
+  backend = vault_consul_secret_backend.consul.path
+
+  policies = [
+    "prom",
+  ]
+}
