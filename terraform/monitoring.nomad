@@ -17,7 +17,7 @@ job "monitoring" {
         }
       }
       service {
-        port = "statsd"
+        port = "http"
         name = "statsd"
         tags = ["urlprefix-statsd.service.consul/"]
         check {
@@ -29,11 +29,46 @@ job "monitoring" {
         }
       }
 
+      template {
+        data        = <<EOH
+mappings:
+- match: ^([^.]*)\.([^.]*)--http.status.([^.]*).count
+  match_type: "regex"
+  name: "fabio_http_status_count"
+  labels:
+    code: "$3"
+    instance: "$1"
+- match: ^([^.]*)\.fabio--([^.]*)\.([^.]*)\./\.(.*)\.([^.]*)
+  match_type: "regex"
+  name: "fabio_app"
+  labels:
+    instance: "$1"
+    service: "$2"
+    hostname: "$3"
+    ipaddress: "$4"
+    type: "$5"
+- match: ^vault\.([^.]*)\.([^.]*)\.(.*)
+  match_type: "regex"
+  name: "vault_stat_$1"
+  labels:
+    catagory: "$2"
+    code: "$3"
+- match: ^nomad\.([^.]*)\.([^.]*)\.(.*)
+  match_type: "regex"
+  name: "nomad_stat_$1"
+  labels:
+    catagory: "$2"
+    code: "$3"
+EOH
+        destination = "${NOMAD_TASK_DIR}/mapping.yml"
+      }
+
       config {
         image = "prom/statsd-exporter:v0.16.0"
         args = [
           "--web.telemetry-path=/v1/metrics",
           "--web.listen-address=:${NOMAD_PORT_http}",
+          "--statsd.mapping-config=${NOMAD_TASK_DIR}/mapping.yml",
           "--statsd.listen-tcp=:${NOMAD_PORT_statsd}",
           "--statsd.listen-udp=:${NOMAD_PORT_statsd}"
         ]
