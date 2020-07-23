@@ -15,11 +15,21 @@ client {
   options = {
     "driver.blacklist" = "java"
   }
+  host_volume "build-output" {
+    path = "/Users/tristan/tmp"
+    read_only = false
+  }
 }
 
 server {
   enabled          = true
   bootstrap_expect = 1
+}
+
+plugin "raw_exec" {
+  config {
+    enabled = true
+  }
 }
 
 vault {

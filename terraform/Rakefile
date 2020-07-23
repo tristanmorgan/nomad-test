@@ -54,7 +54,7 @@ namespace :terraform do
   end
 end
 
-NOMAD_BUILDS = %w[counting doh-server fabio monitoring https-echo batch].freeze
+NOMAD_BUILDS = Dir.glob('*.nomad').map { |name| name[0..-7] }
 namespace :nomad do
   NOMAD_BUILDS.each do |target|
     desc "Run Nomad format-#{target}"
