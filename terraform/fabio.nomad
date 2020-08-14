@@ -1,43 +1,40 @@
 job "fabio" {
   datacenters = ["system-internal"]
-  type        = "system"
 
   group "load" {
     count = 1
 
+    network {
+      mode = "host"
+      port "https" {
+        static = 443
+      }
+      port "admin" {
+      }
+    }
+
+    service {
+      port = "admin"
+      name = "fabio"
+      tags = ["urlprefix-fabio.service.consul/"]
+      check {
+        port     = "admin"
+        type     = "http"
+        path     = "/health"
+        interval = "10s"
+        timeout  = "2s"
+      }
+    }
+
     task "balancer" {
       driver = "docker"
 
-      resources {
-        network {
-          port "https" {
-            static = 443
-          }
-          port "admin" {
-          }
-        }
-      }
-      service {
-        port = "admin"
-        name = "fabio"
-        tags = ["urlprefix-fabio.service.consul/"]
-        check {
-          type     = "http"
-          path     = "/health"
-          port     = "admin"
-          interval = "10s"
-          timeout  = "2s"
-        }
+      config {
+        image = "fabiolb/fabio:1.5.14"
+        args  = ["-cfg", "${NOMAD_TASK_DIR}/fabio.properties"]
+        ports = ["admin", "https"]
       }
 
-      config {
-        image = "fabiolb/fabio:1.5.13-go1.13.4"
-        args  = ["-cfg", "${NOMAD_TASK_DIR}/fabio.properties"]
-        port_map {
-          https = "${NOMAD_HOST_PORT_https}"
-          admin = "${NOMAD_HOST_PORT_admin}"
-        }
-      }
       vault {
         policies = ["fabio"]
 

@@ -11,7 +11,23 @@ resource "vault_consul_secret_backend" "consul" {
 
 resource "consul_acl_policy" "anonymous" {
   name  = "anonymous"
-  rules = file("${path.module}/anonymous_acl.hcl")
+  rules = <<-RULE
+key_prefix "_rexec/" {
+  policy = "deny"
+}
+key_prefix "vault/" {
+  policy = "deny"
+}
+service_prefix "" {
+  policy = "read"
+}
+node_prefix "" {
+  policy = "read"
+}
+agent_prefix "" {
+  policy = "read"
+}
+RULE
 }
 
 resource "consul_acl_token_policy_attachment" "attachment" {
@@ -70,4 +86,36 @@ resource "vault_consul_secret_backend_role" "prom" {
   policies = [
     "prom",
   ]
+}
+
+resource "consul_acl_policy" "uuid" {
+  name        = "uuid"
+  datacenters = ["system-internal"]
+  rules       = <<-RULE
+service_prefix "" {
+  policy = "write"
+}
+node_prefix "" {
+  policy = "read"
+}
+agent_prefix "" {
+  policy = "read"
+}
+    RULE
+}
+
+resource "vault_consul_secret_backend_role" "uuid" {
+  name    = "uuid"
+  backend = vault_consul_secret_backend.consul.path
+
+  policies = [
+    "uuid",
+  ]
+}
+
+resource "consul_intention" "uuid" {
+  source_name      = "uuid-fe"
+  destination_name = "uuid-api"
+  action           = "allow"
+  description      = "Native Connect service."
 }

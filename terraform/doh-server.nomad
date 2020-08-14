@@ -3,28 +3,28 @@ job "doh" {
   group "server" {
     count = 1
 
+    network {
+      mode = "host"
+      port "http" {
+        static = 8053
+      }
+    }
+
+    service {
+      name = "dns"
+      tags = ["urlprefix-dns.service.consul/"]
+      port = "http"
+      check {
+        type     = "http"
+        path     = "/dns-query?name=consul.service.consul"
+        port     = "http"
+        interval = "10s"
+        timeout  = "2s"
+      }
+    }
+
     task "dns" {
       driver = "docker"
-
-      resources {
-        network {
-          port "http" {
-            static = 8053
-          }
-        }
-      }
-      service {
-        name = "dns"
-        tags = ["urlprefix-dns.service.consul/"]
-        port = "http"
-        check {
-          type     = "http"
-          path     = "/dns-query?name=consul.service.consul"
-          port     = "http"
-          interval = "10s"
-          timeout  = "2s"
-        }
-      }
 
       template {
         data = <<EOH
@@ -47,9 +47,7 @@ log_guessed_client_ip = false
           "-conf", "${NOMAD_TASK_DIR}/doh-server.conf",
         ]
         image = "doh-server:2.2.2"
-        port_map {
-          http = "${NOMAD_HOST_PORT_http}"
-        }
+        ports = ["http"]
       }
     }
   }

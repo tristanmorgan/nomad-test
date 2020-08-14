@@ -29,6 +29,12 @@ resource "vault_policy" "prom" {
   policy = file("${path.module}/prom.hcl")
 }
 
+resource "vault_policy" "uuid" {
+  name = "uuid"
+
+  policy = file("${path.module}/uuid.hcl")
+}
+
 resource "nomad_job" "everything" {
   for_each = fileset(path.module, "*.nomad")
   jobspec  = file(each.value)

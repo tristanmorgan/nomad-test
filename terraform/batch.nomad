@@ -24,31 +24,9 @@ job "batch" {
     task "date" {
       driver = "docker"
 
-      resources {
-        network {
-          port "date" {
-          }
-        }
-      }
-      service {
-        name = "date-batch-job"
-        tags = ["date"]
-        port = "date"
-
-        check {
-          name     = "alive"
-          type     = "tcp"
-          interval = "10s"
-          timeout  = "2s"
-        }
-      }
-
       config {
         image   = "alpine:3.12.0"
         command = "date"
-        port_map {
-          date = "${NOMAD_HOST_PORT_date}"
-        }
       }
     }
   }

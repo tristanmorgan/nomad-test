@@ -3,41 +3,54 @@ job "monitoring" {
   group "telemetry" {
     count = 1
 
+    network {
+      mode = "host"
+      port "http" {
+      }
+      port "statsd" {
+        static = 9125
+      }
+      port "prom" {
+      }
+    }
+    service {
+      port = "http"
+      name = "statsd"
+      tags = ["urlprefix-statsd.service.consul/"]
+      check {
+        port     = "http"
+        type     = "http"
+        path     = "/health"
+        interval = "10s"
+        timeout  = "2s"
+      }
+    }
+    service {
+      port = "prom"
+      name = "prometheus"
+      tags = ["urlprefix-prometheus.service.consul/"]
+      check {
+        port     = "prom"
+        type     = "http"
+        path     = "/-/healthy"
+        interval = "10s"
+        timeout  = "2s"
+      }
+    }
+
     task "statsd" {
       driver = "docker"
-
-      resources {
-        network {
-          # 9102 9125 9125/udp
-          port "http" {
-          }
-          port "statsd" {
-            static = 9125
-          }
-        }
-      }
-      service {
-        port = "http"
-        name = "statsd"
-        tags = ["urlprefix-statsd.service.consul/"]
-        check {
-          type     = "http"
-          path     = "/health"
-          port     = "http"
-          interval = "10s"
-          timeout  = "2s"
-        }
-      }
 
       template {
         data        = <<EOH
 mappings:
-- match: ^([^.]*)\.([^.]*)--http.status.([^.]*).count
+- match: ^([^.]*)\.([^.]*)--http.status.([^.]*).([^.]*)
   match_type: "regex"
-  name: "fabio_http_status_count"
+  name: "fabio_http_status"
   labels:
     code: "$3"
     instance: "$1"
+    type: "$4"
 - match: ^([^.]*)\.fabio--([^.]*)\.([^.]*)\./\.(.*)\.([^.]*)
   match_type: "regex"
   name: "fabio_app"
@@ -59,6 +72,12 @@ mappings:
   labels:
     catagory: "$2"
     code: "$3"
+- match: ^consul\.([^.]*)\.([^.]*)\.(.*)
+  match_type: "regex"
+  name: "consul_stat_$1"
+  labels:
+    catagory: "$2"
+    code: "$3"
 EOH
         destination = "${NOMAD_TASK_DIR}/mapping.yml"
       }
@@ -72,34 +91,12 @@ EOH
           "--statsd.listen-tcp=:${NOMAD_PORT_statsd}",
           "--statsd.listen-udp=:${NOMAD_PORT_statsd}"
         ]
-        port_map {
-          http   = "${NOMAD_HOST_PORT_http}"
-          statsd = "${NOMAD_HOST_PORT_statsd}"
-        }
+        ports = ["http", "statsd"]
       }
     }
 
     task "prometheus" {
       driver = "docker"
-
-      resources {
-        network {
-          port "http" {
-          }
-        }
-      }
-      service {
-        port = "http"
-        name = "prometheus"
-        tags = ["urlprefix-prometheus.service.consul/"]
-        check {
-          type     = "http"
-          path     = "/-/healthy"
-          port     = "http"
-          interval = "10s"
-          timeout  = "2s"
-        }
-      }
 
       vault {
         policies = ["prom"]
@@ -116,7 +113,7 @@ scrape_configs:
     honor_labels: true
     static_configs:
       - targets:
-          - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_HOST_PORT_http` }}
+          - {{ env `NOMAD_IP_prom` }}:{{ env `NOMAD_PORT_prom` }}
   - job_name: statsd
     metrics_path: "/v1/metrics"
     params:
@@ -124,7 +121,7 @@ scrape_configs:
         - "prometheus"
     static_configs:
       - targets:
-          - {{ env `NOMAD_IP_http` }}:{{ env `NOMAD_PORT_statsd_http` }}
+          - {{ env `NOMAD_IP_prom` }}:{{ env `NOMAD_PORT_http` }}
   - job_name: consul
     metrics_path: "/v1/agent/metrics"
     params:
@@ -134,7 +131,7 @@ scrape_configs:
         - "{{with secret "consul/creds/prom"}}{{.Data.token}}{{end}}"
     static_configs:
       - targets:
-          - {{ env `NOMAD_IP_http` }}:8500
+          - {{ env `NOMAD_IP_prom` }}:8500
   - job_name: nomad
     metrics_path: "/v1/metrics"
     params:
@@ -142,7 +139,7 @@ scrape_configs:
         - "prometheus"
     static_configs:
       - targets:
-          - {{ env `NOMAD_IP_http` }}:4646
+          - {{ env `NOMAD_IP_prom` }}:4646
   - job_name: vault
     metrics_path: "/v1/sys/metrics"
     params:
@@ -151,7 +148,7 @@ scrape_configs:
     scheme: http
     static_configs:
       - targets:
-        - {{ env `NOMAD_IP_http` }}:8200
+        - {{ env `NOMAD_IP_prom` }}:8200
   EOH
 
         destination = "${NOMAD_TASK_DIR}/consul_sd_config.yml"
@@ -163,12 +160,10 @@ scrape_configs:
           "--storage.tsdb.path=/prometheus",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",
           "--web.console.templates=/usr/share/prometheus/consoles",
-          "--web.listen-address=0.0.0.0:${NOMAD_PORT_http}",
+          "--web.listen-address=0.0.0.0:${NOMAD_PORT_prom}",
           "--config.file=${NOMAD_TASK_DIR}/consul_sd_config.yml"
         ]
-        port_map {
-          http = "${NOMAD_HOST_PORT_http}"
-        }
+        ports = ["prom"]
       }
     }
   }
