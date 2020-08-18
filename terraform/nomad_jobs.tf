@@ -17,40 +17,29 @@ EOT
   disable_read = true
 }
 
-resource "vault_policy" "fabio" {
-  name = "fabio"
+resource "vault_policy" "needed" {
+  for_each = fileset(path.module, "vpol/*.hcl")
+  name     = regex("vpol/([[:alnum:]]+).hcl", each.value)[0]
 
-  policy = file("${path.module}/fabio.hcl")
-}
-
-resource "vault_policy" "prom" {
-  name = "prom"
-
-  policy = file("${path.module}/prom.hcl")
-}
-
-resource "vault_policy" "uuid" {
-  name = "uuid"
-
-  policy = file("${path.module}/uuid.hcl")
+  policy = file(each.value)
 }
 
 resource "nomad_job" "everything" {
-  for_each = fileset(path.module, "*.nomad")
+  for_each = fileset(path.module, "jobs/*.nomad")
   jobspec  = file(each.value)
 
   depends_on = [
     consul_acl_token_policy_attachment.attachment,
     consul_keys.fabio_config,
     vault_pki_secret_backend_role.consul,
-    vault_policy.fabio
+    vault_policy.needed
   ]
 }
 
 resource "consul_keys" "fabio_config" {
   key {
     path = "fabio/config"
-    value = templatefile("${path.module}/fabio-config.txt",
+    value = templatefile("${path.module}/fabio_config.tpl",
       {
         ipaddress = data.external.local_info.result.ipaddress
       }

@@ -33,5 +33,12 @@ rejoin_after_leave = false
 server_name        = "consul.service.consul"
 telemetry = {
   prometheus_retention_time = "300s"
+  statsd_address = "{{GetPrivateIP}:9125"
 }
 ui = true
+
+connect {
+  enabled = true
+}
+enable_central_service_config = true
+

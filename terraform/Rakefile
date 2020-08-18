@@ -8,7 +8,7 @@ RuboCop::RakeTask.new do |rubocop|
 end
 
 desc 'Run all style checks and unit tests'
-task default: ['rubocop', 'nomad:fmt-all', 'nomad:validate-all', 'terraform:test']
+task default: ['rubocop', 'nomad:fmt-all', 'nomad:validate-all', 'vault:fmt-all', 'terraform:test']
 
 TF_ACTIONS = %w[validate plan fmt refresh show output].freeze
 EXTRA_ACTIONS = [
@@ -22,10 +22,12 @@ EXTRA_ACTIONS = [
 
 namespace :terraform do
   desc 'Run Terraform tests'
-  task test: ['terraform:fmt-check', 'terraform:validate', 'terraform:plan']
+  task test: ['terraform:fmt-check', 'terraform:validate',
+              'terraform:plan']
 
   desc 'Run Terraform test then apply'
-  task deploy: ['nomad:validate-all', 'terraform:test', 'terraform:apply']
+  task deploy: ['nomad:validate-all', 'terraform:fmt-check',
+                'terraform:validate', 'terraform:apply']
 
   TF_ACTIONS.each do |action|
     desc "Run Terraform #{action}"
@@ -54,7 +56,7 @@ namespace :terraform do
   end
 end
 
-NOMAD_BUILDS = Dir.glob('*.nomad').map { |name| name[0..-7] }
+NOMAD_BUILDS = Dir.glob('jobs/*.nomad').map { |name| name[5..-7] }
 namespace :nomad do
   NOMAD_BUILDS.each do |target|
     desc "Run Nomad format-#{target}"
@@ -62,7 +64,7 @@ namespace :nomad do
       puts "Running Nomad format on #{target}"
       require 'mixlib/shellout'
       cmd = Mixlib::ShellOut.new(
-        "mv #{target}.nomad #{target}.tf && terraform fmt #{target}.tf && mv #{target}.tf #{target}.nomad"
+        "cd jobs && mv #{target}.nomad #{target}.tf && terraform fmt #{target}.tf && mv #{target}.tf #{target}.nomad"
       )
       cmd.live_stdout = $stdout
       cmd.live_stderr = $stderr
@@ -75,7 +77,7 @@ namespace :nomad do
       puts "Running Nomad validate on #{target}"
       require 'mixlib/shellout'
       cmd = Mixlib::ShellOut.new(
-        "nomad job validate #{target}.nomad"
+        "nomad job validate jobs/#{target}.nomad"
       )
       cmd.live_stdout = $stdout
       cmd.live_stderr = $stderr
@@ -89,4 +91,25 @@ namespace :nomad do
 
   desc 'Run Nomad validate all'
   task 'validate-all': NOMAD_BUILDS.map { |name| "nomad:validate-#{name}" }
+end
+
+VAULT_BUILDS = Dir.glob('vpol/*.hcl').map { |name| name[5..-5] }
+namespace :vault do
+  VAULT_BUILDS.each do |target|
+    desc "Run Vault format-#{target}"
+    task "fmt-#{target}" do
+      puts "Running Vault format on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "vault policy fmt vpol/#{target}.hcl"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+  end
+
+  desc 'Run Vault format all'
+  task 'fmt-all': VAULT_BUILDS.map { |name| "vault:fmt-#{name}" }
 end

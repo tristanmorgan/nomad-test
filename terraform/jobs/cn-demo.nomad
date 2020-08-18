@@ -108,5 +108,10 @@ job "cn-demo" {
         CONSUL_HTTP_TOKEN_FILE = "${NOMAD_TASK_DIR}/consul.token"
       }
     }
+    scaling {
+      enabled = true
+      min     = 1
+      max     = 10
+    }
   }
 }

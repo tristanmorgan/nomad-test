@@ -70,20 +70,6 @@ job "countdash" {
       enabled = true
       min     = 1
       max     = 10
-
-      policy {
-        evaluation_interval = "5s"
-        cooldown            = "1m"
-
-        check "active_connections" {
-          source = "nomad-apm"
-          query  = "percentage-allocated_cpu"
-
-          strategy "target-value" {
-            target = 50
-          }
-        }
-      }
     }
   }
 }

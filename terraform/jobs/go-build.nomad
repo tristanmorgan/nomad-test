@@ -1,3 +1,6 @@
+# usage 
+# nomad job dispatch -meta "repo=https://github.com/servian/https-echo.git" -meta "folder=/go/src/github.com/servian/https-echo" go
+
 job "go" {
   type        = "batch"
   datacenters = ["system-internal"]

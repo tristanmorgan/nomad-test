@@ -9,6 +9,24 @@ resource "vault_consul_secret_backend" "consul" {
   max_lease_ttl_seconds     = "2764800"
 }
 
+resource "consul_certificate_authority" "connect" {
+  connect_provider = "vault"
+
+  config = {
+    IntermediateCertTTL = "72h0m0s"
+    Address             = "http://${data.external.local_info.result.ipaddress}:8200"
+    Token               = data.external.local_info.result.vaulttoken
+    RootPkiPath         = vault_mount.rootca.path
+    LeafCertTTL         = "1h0m0s"
+    IntermediatePkiPath = "consulca"
+  }
+
+  depends_on = [
+    vault_pki_secret_backend_config_urls.intca,
+    vault_pki_secret_backend_root_cert.rootca,
+  ]
+}
+
 resource "consul_acl_policy" "anonymous" {
   name  = "anonymous"
   rules = <<-RULE
@@ -35,81 +53,20 @@ resource "consul_acl_token_policy_attachment" "attachment" {
   policy   = consul_acl_policy.anonymous.name
 }
 
-resource "consul_acl_policy" "fabio" {
-  name        = "fabio"
+resource "consul_acl_policy" "everything" {
+  for_each    = fileset(path.module, "cpol/*.hcl")
+  name        = regex("cpol/([[:alnum:]]+).hcl", each.value)[0]
   datacenters = ["system-internal"]
-  rules       = <<-RULE
-key_prefix "_rexec/" {
-  policy = "deny"
-}
-key_prefix "vault/" {
-  policy = "deny"
-}
-key_prefix "fabio" {
-  policy = "read"
-}
-service_prefix "" {
-  policy = "write"
-}
-node_prefix "" {
-  policy = "read"
-}
-agent_prefix "" {
-  policy = "read"
-}
-    RULE
+  rules       = file(each.value)
 }
 
-resource "vault_consul_secret_backend_role" "fabio" {
-  name    = "fabio"
-  backend = vault_consul_secret_backend.consul.path
+resource "vault_consul_secret_backend_role" "everything" {
+  for_each = fileset(path.module, "cpol/*.hcl")
+  name     = regex("cpol/([[:alnum:]]+).hcl", each.value)[0]
+  backend  = vault_consul_secret_backend.consul.path
 
   policies = [
-    "fabio",
-  ]
-}
-
-resource "consul_acl_policy" "prom" {
-  name        = "prom"
-  datacenters = ["system-internal"]
-  rules       = <<-RULE
-agent_prefix "" {
-  policy = "read"
-}
-    RULE
-}
-
-resource "vault_consul_secret_backend_role" "prom" {
-  name    = "prom"
-  backend = vault_consul_secret_backend.consul.path
-
-  policies = [
-    "prom",
-  ]
-}
-
-resource "consul_acl_policy" "uuid" {
-  name        = "uuid"
-  datacenters = ["system-internal"]
-  rules       = <<-RULE
-service_prefix "" {
-  policy = "write"
-}
-node_prefix "" {
-  policy = "read"
-}
-agent_prefix "" {
-  policy = "read"
-}
-    RULE
-}
-
-resource "vault_consul_secret_backend_role" "uuid" {
-  name    = "uuid"
-  backend = vault_consul_secret_backend.consul.path
-
-  policies = [
-    "uuid",
+    regex("cpol/([[:alnum:]]+).hcl", each.value)[0],
   ]
 }
 

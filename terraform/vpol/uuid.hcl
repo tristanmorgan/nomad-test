@@ -10,4 +10,3 @@ path "auth/token/renew-self" {
 path "consul/creds/uuid" {
   capabilities = ["read"]
 }
-

@@ -6,7 +6,6 @@ job "doh" {
     network {
       mode = "host"
       port "http" {
-        static = 8053
       }
     }
 
@@ -33,7 +32,7 @@ listen = [
 ]
 path = "/dns-query"
 upstream = [
-    "udp:{{ env `NOMAD_IP_http` }}:8600", 
+    "udp:{{ env `NOMAD_IP_http` }}:8600",
 ]
 verbose = false
 log_guessed_client_ip = false
