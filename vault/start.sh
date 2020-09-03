@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo > vault.log
+
 IP_ADDRESS=$(ipconfig getifaddr en0)
 export VAULT_API_ADDR=http://$IP_ADDRESS:8200
 export VAULT_CLUSTER_ADDR=https://$IP_ADDRESS:8201

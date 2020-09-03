@@ -17,6 +17,12 @@ EOT
   disable_read = true
 }
 
+resource "nomad_acl_policy" "dev" {
+  name        = "anonymous"
+  description = "Anonymous policy (read-access)"
+  rules_hcl   = file("${path.module}/anon-nomad.hcl")
+}
+
 resource "vault_policy" "needed" {
   for_each = fileset(path.module, "vpol/*.hcl")
   name     = regex("vpol/([[:alnum:]]+).hcl", each.value)[0]

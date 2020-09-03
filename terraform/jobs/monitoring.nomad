@@ -83,7 +83,7 @@ EOH
       }
 
       config {
-        image = "prom/statsd-exporter:v0.16.0"
+        image = "prom/statsd-exporter:v0.18.0"
         args = [
           "--web.telemetry-path=/v1/metrics",
           "--web.listen-address=:${NOMAD_PORT_http}",
@@ -155,7 +155,7 @@ scrape_configs:
       }
 
       config {
-        image = "prom/prometheus:v2.15.2"
+        image = "prom/prometheus:v2.20.1"
         args = [
           "--storage.tsdb.path=/prometheus",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",

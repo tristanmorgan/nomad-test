@@ -6,6 +6,7 @@ nomad/nomad.out
 nomad/nomad.err
 nomad/data/
 vault/vault-init.txt
+vault/vault.log
 vault/vault.out
 vault/vault.err
 vault/raft/
@@ -13,3 +14,4 @@ terraform/.terraform/
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 Gemfile.lock
+

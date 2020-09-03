@@ -15,4 +15,3 @@ done
 nomad acl bootstrap | tee bootstrap.txt
 echo export NOMAD_ADDR=http://127.0.0.1:4646
 echo export NOMAD_TOKEN=THEBIG-LONG-UUID-FROM-BOOTSTRAP
-echo 'nomad acl policy apply -description "Anonymous policy (full-access)" anonymous anon.hcl'
