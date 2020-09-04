@@ -17,7 +17,7 @@ EOT
   disable_read = true
 }
 
-resource "nomad_acl_policy" "dev" {
+resource "nomad_acl_policy" "anonymous" {
   name        = "anonymous"
   description = "Anonymous policy (read-access)"
   rules_hcl   = file("${path.module}/anon-nomad.hcl")

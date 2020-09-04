@@ -16,7 +16,7 @@ client {
     "driver.blacklist" = "java"
   }
   host_volume "build-output" {
-    path = "/Users/tristan/tmp"
+    path      = "./tmp"
     read_only = false
   }
 }
@@ -38,7 +38,7 @@ vault {
 }
 
 telemetry {
-  statsd_address = "10.10.10.133:9125"
+  statsd_address             = "10.10.10.133:9125"
   publish_allocation_metrics = true
   publish_node_metrics       = true
 }

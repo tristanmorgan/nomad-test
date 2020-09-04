@@ -52,7 +52,7 @@ job "fabio" {
         FABIO_insecure                      = true
         FABIO_registry_consul_addr          = "${NOMAD_IP_admin}:8500"
         FABIO_registry_consul_register_addr = "${NOMAD_IP_admin}:${NOMAD_HOST_PORT_admin}"
-        FABIO_proxy_addr                    = ":${NOMAD_PORT_https};cs=service-consul"
+        FABIO_proxy_addr                    = ":${NOMAD_PORT_https};cs=service-consul;tlsmin=tls12;tlsciphers=\"0x1303,0x1302,0x1301,0xcca9,0xc02c,0xc02b\""
         FABIO_ui_addr                       = ":${NOMAD_PORT_admin}"
         FABIO_log_access_target             = "stdout"
         FABIO_proxy_strategy                = "rr"
