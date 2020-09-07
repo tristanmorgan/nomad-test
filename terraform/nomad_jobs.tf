@@ -25,7 +25,7 @@ resource "nomad_acl_policy" "anonymous" {
 
 resource "vault_policy" "needed" {
   for_each = fileset(path.module, "vpol/*.hcl")
-  name     = regex("vpol/([[:alnum:]]+).hcl", each.value)[0]
+  name     = regex("vpol/([-[:alnum:]]+).hcl", each.value)[0]
 
   policy = file(each.value)
 }
@@ -51,4 +51,13 @@ resource "consul_keys" "fabio_config" {
       }
     )
   }
+}
+
+resource "vault_token_auth_backend_role" "nomad-cluster" {
+  role_name              = "nomad-cluster"
+  disallowed_policies    = ["nomad-server"]
+  orphan                 = true
+  token_period           = "3600"
+  renewable              = true
+  token_explicit_max_ttl = "0"
 }

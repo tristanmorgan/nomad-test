@@ -12,9 +12,6 @@ consul {
 
 client {
   enabled = true
-  options = {
-    "driver.blacklist" = "java"
-  }
   host_volume "build-output" {
     path      = "./tmp"
     read_only = false
@@ -35,6 +32,7 @@ plugin "raw_exec" {
 vault {
   enabled         = true
   tls_skip_verify = true
+  create_from_role = "nomad-cluster"
 }
 
 telemetry {

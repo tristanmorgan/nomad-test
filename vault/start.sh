@@ -8,5 +8,12 @@ export VAULT_CLUSTER_ADDR=https://$IP_ADDRESS:8201
 
 vault server -config=vault.hcl 2> vault.err > vault.out &
 
+VAULT_TOKEN=s.YOURVAULTTOKENHEREORELSE
+if [ -r vault-init.txt ]
+then
+  VAULT_TOKEN=$(awk '/Token/ {print $NF}' vault-init.txt)
+fi
+
 echo export VAULT_ADDR=http://127.0.0.1:8200
-echo export VAULT_TOKEN=s.YOURVAULTTOKENHEREORELSE
+echo export VAULT_TOKEN=$VAULT_TOKEN
+echo cd ../nomad
