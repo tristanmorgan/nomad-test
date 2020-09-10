@@ -5,7 +5,7 @@ key_prefix "vault/" {
   policy = "deny"
 }
 key_prefix "fabio" {
-  policy = "read"
+  policy = "write"
 }
 service_prefix "" {
   policy = "write"

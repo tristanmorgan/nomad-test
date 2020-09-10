@@ -53,6 +53,13 @@ resource "consul_keys" "fabio_config" {
   }
 }
 
+resource "consul_keys" "fabio_noroute" {
+  key {
+    path  = "fabio/noroute.html"
+    value = file("${path.module}/noroute.html")
+  }
+}
+
 resource "vault_token_auth_backend_role" "nomad-cluster" {
   role_name              = "nomad-cluster"
   disallowed_policies    = ["nomad-server"]
