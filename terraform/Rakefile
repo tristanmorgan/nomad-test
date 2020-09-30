@@ -20,14 +20,14 @@ EXTRA_ACTIONS = [
   { name: 'init', command: 'terraform init -upgrade=true' }
 ].freeze
 
+desc 'Run Terraform test then apply'
+task deploy: ['nomad:validate-all', 'terraform:fmt-check',
+              'terraform:validate', 'terraform:apply']
+
 namespace :terraform do
   desc 'Run Terraform tests'
   task test: ['terraform:fmt-check', 'terraform:validate',
               'terraform:plan']
-
-  desc 'Run Terraform test then apply'
-  task deploy: ['nomad:validate-all', 'terraform:fmt-check',
-                'terraform:validate', 'terraform:apply']
 
   TF_ACTIONS.each do |action|
     desc "Run Terraform #{action}"

@@ -13,7 +13,7 @@ consul {
 client {
   enabled = true
   host_volume "build-output" {
-    path      = "./tmp"
+    path      = "/private/tmp/"
     read_only = false
   }
 }

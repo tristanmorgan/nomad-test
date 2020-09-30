@@ -12,6 +12,7 @@ VAULT_TOKEN=s.YOURVAULTTOKENHEREORELSE
 if [ -r vault-init.txt ]
 then
   VAULT_TOKEN=$(awk '/Token/ {print $NF}' vault-init.txt)
+  awk '/Unseal/ {print "vault operator unseal " $NF}' vault-init.txt
 fi
 
 echo export VAULT_ADDR=http://127.0.0.1:8200

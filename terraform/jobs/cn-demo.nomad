@@ -11,6 +11,7 @@ job "cn-demo" {
     service {
       port = "api"
       name = "uuid-api"
+      tags = ["urlprefix-uuid-api.service.consul/ proto=tcp"]
       check {
         port     = "api"
         type     = "tcp"
