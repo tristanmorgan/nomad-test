@@ -8,9 +8,12 @@ acl {
     master = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
   }
 }
-
+addresses {
+  dns  = "127.0.0.1 {{GetPrivateIP}}"
+  http = "127.0.0.1 {{GetPrivateIP}}"
+  grpc = "127.0.0.1 {{GetPrivateIP}}"
+}
 primary_datacenter   = "system-internal"
-client_addr          = "{{GetPrivateIP}} 127.0.0.1 ::1"
 bind_addr            = "{{GetPrivateIP}}"
 data_dir             = "./data"
 datacenter           = "system-internal"
@@ -19,10 +22,12 @@ disable_update_check = true
 encrypt              = "GkSMCC4pHEKGEiQ/eMN0k7c3tfMa4u/5fiwOFeS3Qcc="
 leave_on_terminate   = true
 log_level            = "INFO"
+node_name            = "introversion"
 ports = {
+  http  = 8500
+  https = -1
   grpc  = 8502
   dns   = 8600
-  https = -1
 }
 protocol      = 3
 raft_protocol = 3
@@ -35,6 +40,9 @@ telemetry = {
   prometheus_retention_time = "300s"
   statsd_address = "{{GetPrivateIP}:9125"
 }
+#ui_config {
+#  enabled = true
+#}
 ui = true
 
 connect {

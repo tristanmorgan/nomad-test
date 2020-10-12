@@ -11,6 +11,7 @@ vault/vault.out
 vault/vault.err
 vault/raft/
 terraform/.terraform/
+terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 Gemfile.lock

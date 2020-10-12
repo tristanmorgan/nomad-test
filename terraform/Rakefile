@@ -8,7 +8,7 @@ RuboCop::RakeTask.new do |rubocop|
 end
 
 desc 'Run all style checks and unit tests'
-task default: ['rubocop', 'nomad:fmt-all', 'nomad:validate-all', 'vault:fmt-all', 'terraform:test']
+task default: ['rubocop', 'nomad:validate-all', 'vault:fmt-all', 'terraform:test']
 
 TF_ACTIONS = %w[validate plan fmt refresh show output].freeze
 EXTRA_ACTIONS = [
@@ -59,19 +59,6 @@ end
 NOMAD_BUILDS = Dir.glob('jobs/*.nomad').map { |name| name[5..-7] }
 namespace :nomad do
   NOMAD_BUILDS.each do |target|
-    desc "Run Nomad format-#{target}"
-    task "fmt-#{target}" do
-      puts "Running Nomad format on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "cd jobs && mv #{target}.nomad #{target}.tf && terraform fmt #{target}.tf && mv #{target}.tf #{target}.nomad"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
-    end
-
     desc "Run Nomad validate-#{target}"
     task "validate-#{target}" do
       puts "Running Nomad validate on #{target}"
@@ -85,9 +72,6 @@ namespace :nomad do
       cmd.error!
     end
   end
-
-  desc 'Run Nomad format all'
-  task 'fmt-all': NOMAD_BUILDS.map { |name| "nomad:fmt-#{name}" }
 
   desc 'Run Nomad validate all'
   task 'validate-all': NOMAD_BUILDS.map { |name| "nomad:validate-#{name}" }
