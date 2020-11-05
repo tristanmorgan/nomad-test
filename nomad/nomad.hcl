@@ -30,8 +30,8 @@ plugin "raw_exec" {
 }
 
 vault {
-  enabled         = true
-  tls_skip_verify = true
+  enabled          = true
+  tls_skip_verify  = true
   create_from_role = "nomad-cluster"
 }
 

@@ -17,7 +17,7 @@ primary_datacenter   = "system-internal"
 bind_addr            = "{{GetPrivateIP}}"
 data_dir             = "./data"
 datacenter           = "system-internal"
-disable_host_node_id = true
+disable_host_node_id = false
 disable_update_check = true
 encrypt              = "GkSMCC4pHEKGEiQ/eMN0k7c3tfMa4u/5fiwOFeS3Qcc="
 leave_on_terminate   = true
@@ -37,14 +37,13 @@ recursors = [
 rejoin_after_leave = false
 server_name        = "consul.service.consul"
 telemetry = {
+  disable_compat_1.9        = true
   prometheus_retention_time = "300s"
-  statsd_address = "{{GetPrivateIP}:9125"
+  statsd_address            = "{{GetPrivateIP}:9125"
 }
-#ui_config {
-#  enabled = true
-#}
-ui = true
-
+ui_config {
+  enabled = true
+}
 connect {
   enabled = true
 }

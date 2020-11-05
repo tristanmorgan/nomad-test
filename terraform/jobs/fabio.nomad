@@ -30,7 +30,7 @@ job "fabio" {
       driver = "docker"
 
       config {
-        image = "fabiolb/fabio:1.5.14-go1.15"
+        image = "fabiolb/fabio:1.5.15-go1.15.5"
         args  = ["-cfg", "${NOMAD_TASK_DIR}/fabio.properties"]
         ports = ["admin", "https"]
       }

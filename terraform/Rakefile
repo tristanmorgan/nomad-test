@@ -8,7 +8,9 @@ RuboCop::RakeTask.new do |rubocop|
 end
 
 desc 'Run all style checks and unit tests'
-task default: ['rubocop', 'nomad:validate-all', 'vault:fmt-all', 'terraform:test']
+task default: ['rubocop', 'nomad:fmt-check-all',
+               'nomad:validate-all', 'vault:fmt-all',
+               'consul:fmt-all', 'terraform:test']
 
 TF_ACTIONS = %w[validate plan fmt refresh show output].freeze
 EXTRA_ACTIONS = [
@@ -71,10 +73,26 @@ namespace :nomad do
       cmd.run_command
       cmd.error!
     end
+
+    desc "Run Nomad validate-#{target}"
+    task "fmt-check-#{target}" do
+      puts "Running Hcledit fmt on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "hcledit fmt < jobs/#{target}.nomad | diff jobs/#{target}.nomad -"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
   end
 
   desc 'Run Nomad validate all'
   task 'validate-all': NOMAD_BUILDS.map { |name| "nomad:validate-#{name}" }
+
+  desc 'Run Hcledit fmt all'
+  task 'fmt-check-all': NOMAD_BUILDS.map { |name| "nomad:fmt-check-#{name}" }
 end
 
 VAULT_BUILDS = Dir.glob('vpol/*.hcl').map { |name| name[5..-5] }
@@ -96,4 +114,25 @@ namespace :vault do
 
   desc 'Run Vault format all'
   task 'fmt-all': VAULT_BUILDS.map { |name| "vault:fmt-#{name}" }
+end
+
+CONSUL_BUILDS = Dir.glob('cpol/*.hcl').map { |name| name[5..-5] }
+namespace :consul do
+  CONSUL_BUILDS.each do |target|
+    desc "Run Consul format-#{target}"
+    task "fmt-#{target}" do
+      puts "Running Consul format on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "hcledit fmt < cpol/#{target}.hcl | diff cpol/#{target}.hcl -"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+  end
+
+  desc 'Run Consul format all'
+  task 'fmt-all': CONSUL_BUILDS.map { |name| "consul:fmt-#{name}" }
 end
