@@ -1,9 +1,8 @@
 job "fabio" {
   datacenters = ["system-internal"]
+  type        = "system"
 
   group "load" {
-    count = 1
-
     network {
       mode = "host"
       port "https" {

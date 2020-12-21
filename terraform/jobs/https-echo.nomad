@@ -1,9 +1,8 @@
 job "https" {
   datacenters = ["system-internal"]
+  type        = "system"
 
   group "echo" {
-    count = 1
-
     network {
       mode = "host"
       port "http" {
