@@ -19,6 +19,7 @@ EXTRA_ACTIONS = [
   { name: 'lint', command: 'tflint ' },
   { name: 'destroy', command: 'terraform destroy -auto-approve' },
   { name: 'document', command: 'terraform-docs markdown . | tee README.md' },
+  { name: 'target', command: 'terraform destroy -auto-approve -target nomad_job.everything' },
   { name: 'init', command: 'terraform init -upgrade=true' }
 ].freeze
 

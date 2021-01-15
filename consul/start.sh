@@ -1,6 +1,6 @@
 #!/bin/sh
 
-consul agent -server -config-file=consul.hcl -bootstrap-expect=1 2> consul.err > consul.out &
+consul agent -server -config-file=consul.hcl -bootstrap-expect=1 > consul.out 2>&1 &
 
 sleep 2
 

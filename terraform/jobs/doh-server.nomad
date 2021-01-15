@@ -44,6 +44,7 @@ log_guessed_client_ip = false
       config {
         args = [
           "-conf", "${NOMAD_TASK_DIR}/doh-server.conf",
+          "-verbose",
         ]
         image = "doh-server:2.2.2"
         ports = ["http"]

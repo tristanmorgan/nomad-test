@@ -34,6 +34,10 @@ resource "nomad_job" "everything" {
   for_each = fileset(path.module, "jobs/*.nomad")
   jobspec  = file(each.value)
 
+  hcl2 {
+    enabled = true
+  }
+
   depends_on = [
     consul_acl_token_policy_attachment.attachment,
     consul_keys.fabio_config,

@@ -67,9 +67,16 @@ resource "vault_consul_secret_backend_role" "everything" {
   ]
 }
 
-resource "consul_intention" "uuid" {
-  source_name      = "uuid-fe"
-  destination_name = "uuid-api"
-  action           = "allow"
-  description      = "Native Connect service."
+resource "consul_config_entry" "uuid" {
+  name = "uuid-api"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [{
+      Action     = "allow"
+      Name       = "uuid-fe"
+      Precedence = 9
+      Type       = "consul"
+    }]
+  })
 }

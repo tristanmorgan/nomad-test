@@ -25,7 +25,7 @@ job "batch" {
       driver = "docker"
 
       config {
-        image   = "alpine:3.12.0"
+        image   = "alpine:3.13"
         command = "date"
       }
     }

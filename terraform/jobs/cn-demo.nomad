@@ -29,7 +29,7 @@ job "cn-demo" {
       driver = "docker"
 
       config {
-        image = "hashicorpnomad/uuid-api:v3"
+        image = "hashicorpnomad/uuid-api:v5"
         ports = ["api"]
       }
       vault {
@@ -84,7 +84,7 @@ job "cn-demo" {
       driver = "docker"
 
       config {
-        image = "hashicorpnomad/uuid-fe:v3"
+        image = "hashicorpnomad/uuid-fe:v5"
         ports = ["http"]
       }
       vault {

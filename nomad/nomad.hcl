@@ -8,6 +8,7 @@ acl {
 
 consul {
   auto_advertise = true
+  tags = ["urlprefix-nomad.service.consul/"]
 }
 
 client {

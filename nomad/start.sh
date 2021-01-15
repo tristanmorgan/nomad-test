@@ -5,7 +5,7 @@ rm -rf data/*
 mkdir data/plugins
 
 export VAULT_TOKEN=$(vault token create -field=token -display-name=nomad-server -policy nomad-server -period 2h -orphan)
-nomad agent -config=nomad.hcl -data-dir=${PWD}/data -consul-address=$IP_ADDRESS:8500 -vault-address=http://$IP_ADDRESS:8200 -bootstrap-expect=1 2> nomad.err > nomad.out &
+nomad agent -config=nomad.hcl -data-dir=${PWD}/data -consul-address=$IP_ADDRESS:8500 -vault-address=http://$IP_ADDRESS:8200 -bootstrap-expect=1 > nomad.out 2>&1 &
 
 
 while ! fgrep -q 'nomad.core: established cluster id: cluster_id' nomad.out
