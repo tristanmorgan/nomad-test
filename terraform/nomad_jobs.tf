@@ -64,7 +64,12 @@ resource "consul_keys" "fabio_noroute" {
   }
 }
 
-resource "vault_token_auth_backend_role" "nomad-cluster" {
+resource "vault_policy" "nomad_server" {
+  name   = "nomad-server"
+  policy = data.http.nomad_server_policy.body
+}
+
+resource "vault_token_auth_backend_role" "nomad_cluster" {
   role_name              = "nomad-cluster"
   disallowed_policies    = ["nomad-server"]
   orphan                 = true

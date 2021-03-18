@@ -12,3 +12,7 @@ echo " \"vaulttoken\":\"$(vault print token)\"}"
 EOF
   ]
 }
+
+data "http" "nomad_server_policy" {
+  url = "https://nomadproject.io/data/vault/nomad-server-policy.hcl"
+}
