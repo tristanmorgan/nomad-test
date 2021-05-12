@@ -64,6 +64,15 @@ resource "consul_keys" "fabio_noroute" {
   }
 }
 
+resource "vault_token_auth_backend_role" "nomad_server" {
+  role_name              = "nomad-server"
+  allowed_policies       = [vault_policy.nomad_server.name]
+  orphan                 = true
+  token_period           = "7200"
+  renewable              = true
+  token_explicit_max_ttl = "0"
+}
+
 resource "vault_policy" "nomad_server" {
   name   = "nomad-server"
   policy = data.http.nomad_server_policy.body
@@ -71,7 +80,7 @@ resource "vault_policy" "nomad_server" {
 
 resource "vault_token_auth_backend_role" "nomad_cluster" {
   role_name              = "nomad-cluster"
-  disallowed_policies    = ["nomad-server"]
+  disallowed_policies    = [vault_policy.nomad_server.name]
   orphan                 = true
   token_period           = "3600"
   renewable              = true

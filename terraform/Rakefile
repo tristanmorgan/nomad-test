@@ -18,7 +18,8 @@ EXTRA_ACTIONS = [
   { name: 'apply', command: 'terraform apply -auto-approve=true -parallelism=1' },
   { name: 'lint', command: 'tflint ' },
   { name: 'destroy', command: 'terraform destroy -auto-approve' },
-  { name: 'document', command: 'terraform-docs markdown . | tee README.md' },
+  { name: 'document',
+    command: 'terraform-docs markdown --hide resources --hide data-sources --output-file README.md .' },
   { name: 'target', command: 'terraform destroy -auto-approve -target nomad_job.everything' },
   { name: 'init', command: 'terraform init -upgrade=true' }
 ].freeze
@@ -75,12 +76,25 @@ namespace :nomad do
       cmd.error!
     end
 
-    desc "Run Nomad validate-#{target}"
+    desc "Run Nomad format-#{target}"
     task "fmt-check-#{target}" do
       puts "Running Hcledit fmt on #{target}"
       require 'mixlib/shellout'
       cmd = Mixlib::ShellOut.new(
-        "hcledit fmt < jobs/#{target}.nomad | diff jobs/#{target}.nomad -"
+        "hcledit fmt -f jobs/#{target}.nomad | diff jobs/#{target}.nomad -"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+
+    desc "Run Nomad format-#{target}"
+    task "fmt-#{target}" do
+      puts "Running Hcledit fmt on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "hcledit fmt -u -f jobs/#{target}.nomad"
       )
       cmd.live_stdout = $stdout
       cmd.live_stderr = $stderr
@@ -92,8 +106,11 @@ namespace :nomad do
   desc 'Run Nomad validate all'
   task 'validate-all': NOMAD_BUILDS.map { |name| "nomad:validate-#{name}" }
 
-  desc 'Run Hcledit fmt all'
+  desc 'Run Hcledit fmt check all'
   task 'fmt-check-all': NOMAD_BUILDS.map { |name| "nomad:fmt-check-#{name}" }
+
+  desc 'Run Hcledit fmt all'
+  task 'fmt-all': NOMAD_BUILDS.map { |name| "nomad:fmt-#{name}" }
 end
 
 VAULT_BUILDS = Dir.glob('vpol/*.hcl').map { |name| name[5..-5] }
@@ -125,7 +142,7 @@ namespace :consul do
       puts "Running Consul format on #{target}"
       require 'mixlib/shellout'
       cmd = Mixlib::ShellOut.new(
-        "hcledit fmt < cpol/#{target}.hcl | diff cpol/#{target}.hcl -"
+        "hcledit fmt -u -f cpol/#{target}.hcl"
       )
       cmd.live_stdout = $stdout
       cmd.live_stderr = $stderr

@@ -4,7 +4,7 @@ IP_ADDRESS=$(ipconfig getifaddr en0)
 rm -rf data/*
 mkdir data/plugins
 
-export VAULT_TOKEN=$(vault token create -field=token -display-name=nomad-server -policy nomad-server -period 2h -orphan)
+export VAULT_TOKEN=$(vault token create -field=token -display-name=nomad-server -role nomad-server)
 nomad agent -config=nomad.hcl -data-dir=${PWD}/data -consul-address=$IP_ADDRESS:8500 -vault-address=http://$IP_ADDRESS:8200 -bootstrap-expect=1 > nomad.out 2>&1 &
 
 
