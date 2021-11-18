@@ -26,16 +26,17 @@ job "doh" {
       driver = "docker"
 
       template {
-        data = <<EOH
-listen = [
-    ":{{ env `NOMAD_PORT_http` }}",
-]
-path = "/dns-query"
-upstream = [
-    "udp:{{ env `NOMAD_IP_http` }}:8600",
-]
-verbose = false
-log_guessed_client_ip = false
+        data = <<-EOH
+        listen = [
+            ":{{ env `NOMAD_PORT_http` }}",
+        ]
+        path = "/dns-query"
+        upstream = [
+        {{ range service "consul" }}
+            "udp:{{ .Address }}:8600",{{ end }}
+        ]
+        verbose = false
+        log_guessed_client_ip = true
         EOH
 
         destination = "${NOMAD_TASK_DIR}/doh-server.conf"
@@ -46,7 +47,7 @@ log_guessed_client_ip = false
           "-conf", "${NOMAD_TASK_DIR}/doh-server.conf",
           "-verbose",
         ]
-        image = "doh-server:2.2.2"
+        image = "tristanmorgan/doh-server:2.2.5"
         ports = ["http"]
       }
     }

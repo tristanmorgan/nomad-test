@@ -5,30 +5,14 @@ job "monitoring" {
 
     network {
       mode = "host"
-      port "http" {
-      }
-      port "statsd" {
-        static = 9125
-      }
       port "prom" {
       }
     }
-    service {
-      port = "http"
-      name = "statsd"
-      tags = ["urlprefix-statsd.service.consul/"]
-      check {
-        port     = "http"
-        type     = "http"
-        path     = "/health"
-        interval = "10s"
-        timeout  = "2s"
-      }
-    }
+
     service {
       port = "prom"
       name = "prometheus"
-      tags = ["urlprefix-prometheus.service.consul/"]
+      tags = ["urlprefix-prometheus.service.consul/", "prom-metrics"]
       check {
         port     = "prom"
         type     = "http"
@@ -38,65 +22,20 @@ job "monitoring" {
       }
     }
 
-    task "statsd" {
-      driver = "docker"
-
-      template {
-        data        = <<EOH
-mappings:
-- match: ^([^.]*)\.([^.]*)--http.status.([^.]*).([^.]*)
-  match_type: "regex"
-  name: "fabio_http_status"
-  labels:
-    code: "$3"
-    instance: "$1"
-    type: "$4"
-- match: ^([^.]*)\.fabio--([^.]*)\.([^.]*)\./\.(.*)\.([^.]*)
-  match_type: "regex"
-  name: "fabio_app"
-  labels:
-    instance: "$1"
-    service: "$2"
-    hostname: "$3"
-    ipaddress: "$4"
-    type: "$5"
-- match: ^vault\.([^.]*)\.([^.]*)\.(.*)
-  match_type: "regex"
-  name: "vault_stat_$1"
-  labels:
-    catagory: "$2"
-    code: "$3"
-- match: ^nomad\.([^.]*)\.([^.]*)\.(.*)
-  match_type: "regex"
-  name: "nomad_stat_$1"
-  labels:
-    catagory: "$2"
-    code: "$3"
-- match: ^consul\.([^.]*)\.([^.]*)\.(.*)
-  match_type: "regex"
-  name: "consul_stat_$1"
-  labels:
-    catagory: "$2"
-    code: "$3"
-EOH
-        destination = "${NOMAD_TASK_DIR}/mapping.yml"
-      }
-
-      config {
-        image = "prom/statsd-exporter:v0.18.0"
-        args = [
-          "--web.telemetry-path=/v1/metrics",
-          "--web.listen-address=:${NOMAD_PORT_http}",
-          "--statsd.mapping-config=${NOMAD_TASK_DIR}/mapping.yml",
-          "--statsd.listen-tcp=:${NOMAD_PORT_statsd}",
-          "--statsd.listen-udp=:${NOMAD_PORT_statsd}"
-        ]
-        ports = ["http", "statsd"]
-      }
+    volume "build" {
+      type      = "host"
+      read_only = false
+      source    = "build-output"
     }
 
     task "prometheus" {
       driver = "docker"
+
+      volume_mount {
+        volume      = "build"
+        destination = "/prometheus"
+        read_only   = false
+      }
 
       vault {
         policies = ["prom"]
@@ -106,58 +45,68 @@ EOH
       }
 
       template {
-        data = <<EOH
----
-scrape_configs:
-  - job_name: prometheus
-    honor_labels: true
-    static_configs:
-      - targets:
-          - {{ env `NOMAD_IP_prom` }}:{{ env `NOMAD_PORT_prom` }}
-  - job_name: statsd
-    metrics_path: "/v1/metrics"
-    params:
-      format:
-        - "prometheus"
-    static_configs:
-      - targets:
-          - {{ env `NOMAD_IP_prom` }}:{{ env `NOMAD_PORT_http` }}
-  - job_name: consul
-    metrics_path: "/v1/agent/metrics"
-    params:
-      format:
-        - "prometheus"
-      token:
-        - "{{with secret "consul/creds/prom"}}{{.Data.token}}{{end}}"
-    static_configs:
-      - targets:
-          - {{ env `NOMAD_IP_prom` }}:8500
-  - job_name: nomad
-    metrics_path: "/v1/metrics"
-    params:
-      format:
-        - "prometheus"
-    static_configs:
-      - targets:
-          - {{ env `NOMAD_IP_prom` }}:4646
-  - job_name: vault
-    metrics_path: "/v1/sys/metrics"
-    params:
-      format:
-        - "prometheus"
-    scheme: http
-    static_configs:
-      - targets:
-        - {{ env `NOMAD_IP_prom` }}:8200
-  EOH
+        data = <<-EOH
+        ---
+        global:
+          scrape_interval: 30s
+        scrape_configs:
+          - job_name: 'consul-sd'
+            metrics_path: "/metrics"
+            params:
+              format:
+                - "prometheus"
+            consul_sd_configs:
+              - server: {{ range service "consul" }}{{ .Address }}:8500{{ end }}
+                token: {{with secret "consul/creds/prom"}}{{.Data.token}}{{end}}
+                tags:
+                  - "prom-metrics"
+            relabel_configs:
+              - source_labels: [__meta_consul_service]
+                target_label: job
+            metric_relabel_configs:
+              - source_labels:
+                 - __name__
+                regex: '.*_bucket'
+                action: drop
+          - job_name: consul
+            metrics_path: "/v1/agent/metrics"
+            params:
+              format:
+                - "prometheus"
+              token:
+                - "{{with secret "consul/creds/prom"}}{{.Data.token}}{{end}}"
+            static_configs:
+              - targets:{{ range service "consul" }}
+                  - {{ .Address }}:8500{{ end }}
+          - job_name: nomad
+            metrics_path: "/v1/metrics"
+            params:
+              format:
+                - "prometheus"
+            static_configs:
+              - targets:{{ range service "nomad-client" }}
+                  - {{ .Address }}:{{ .Port }}{{ end }}
+          - job_name: vault
+            metrics_path: "/v1/sys/metrics"
+            params:
+              format:
+                - "prometheus"
+            scheme: http
+            static_configs:
+              - targets:{{ range service "vault" }}
+                - {{ .Address }}:{{ .Port }}{{ end }}
+        EOH
+
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
 
         destination = "${NOMAD_TASK_DIR}/consul_sd_config.yml"
       }
 
       config {
-        image = "prom/prometheus:v2.20.1"
+        image = "prom/prometheus:v2.41.0"
         args = [
-          "--storage.tsdb.path=/prometheus",
+          "--storage.tsdb.path=/prometheus/promdata",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",
           "--web.console.templates=/usr/share/prometheus/consoles",
           "--web.listen-address=0.0.0.0:${NOMAD_PORT_prom}",

@@ -1,24 +1,105 @@
+data "consul_agent_config" "self" {}
+
+data "vault_policy_document" "consul_ca" {
+  rule {
+    path         = "auth/token/lookup-self"
+    capabilities = ["read"]
+  }
+
+  rule {
+    path         = "auth/token/renew-self"
+    capabilities = ["update"]
+  }
+
+  rule {
+    path         = "sys/leases/renew"
+    capabilities = ["update"]
+  }
+
+  rule {
+    path         = "consulca/*"
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+    description  = "Manage Consul CA"
+  }
+
+  rule {
+    path         = "rootca/ca/pem"
+    capabilities = ["read"]
+    description  = "read public root pem"
+  }
+
+  rule {
+    path         = "rootca/root/sign-intermediate"
+    capabilities = ["update"]
+    description  = "sign intermediate CA"
+  }
+
+  rule {
+    path         = "rootca/root/sign-self-issued"
+    capabilities = ["update", "sudo"]
+    description  = "sign intermediate CA"
+  }
+
+  rule {
+    path         = "sys/mounts"
+    capabilities = ["read", "list"]
+  }
+
+  rule {
+    path         = "sys/mounts/consulca*"
+    capabilities = ["update", "read", "delete"]
+  }
+}
+
+resource "vault_policy" "consul_ca" {
+  name   = "consul-ca"
+  policy = data.vault_policy_document.consul_ca.hcl
+}
+
+resource "vault_token_auth_backend_role" "consul_ca" {
+  role_name               = "consul-ca"
+  allowed_policies        = [vault_policy.consul_ca.name]
+  orphan                  = true
+  token_period            = "3600"
+  renewable               = true
+  token_explicit_max_ttl  = "0"
+  token_no_default_policy = true
+}
+
+resource "consul_acl_token" "vault" {
+  description = "Token for Vault secrets engine."
+  policies    = ["global-management"]
+}
+
+data "consul_acl_token_secret_id" "vault" {
+  accessor_id = consul_acl_token.vault.id
+}
+
 resource "vault_consul_secret_backend" "consul" {
   path        = "consul"
   description = "Access Consul tokens"
 
   address                   = "${data.external.local_info.result.ipaddress}:8500"
   scheme                    = "http"
-  token                     = data.external.local_info.result.consultoken
-  default_lease_ttl_seconds = "36000"
-  max_lease_ttl_seconds     = "2764800"
+  token                     = data.consul_acl_token_secret_id.vault.secret_id
+  default_lease_ttl_seconds = "3600"
+  max_lease_ttl_seconds     = "36000"
+  bootstrap                 = false
 }
 
 resource "consul_certificate_authority" "connect" {
   connect_provider = "vault"
 
   config = {
-    IntermediateCertTTL = "72h0m0s"
-    Address             = "http://${data.external.local_info.result.ipaddress}:8200"
-    Token               = data.external.local_info.result.vaulttoken
-    RootPkiPath         = vault_mount.rootca.path
-    LeafCertTTL         = "1h0m0s"
-    IntermediatePkiPath = "consulca"
+    IntermediateCertTTL      = "72h0m0s"
+    Address                  = "http://${data.external.local_info.result.ipaddress}:8200"
+    Token                    = sensitive(data.external.local_info.result.vaulttoken)
+    RootPkiPath              = vault_mount.rootca.path
+    LeafCertTTL              = "1h0m0s"
+    IntermediatePkiPath      = "consulca"
+    ForceWithoutCrossSigning = true
+    PrivateKeyBits           = vault_pki_secret_backend_root_cert.rootca.key_bits
+    PrivateKeyType           = vault_pki_secret_backend_root_cert.rootca.key_type
   }
 
   depends_on = [
@@ -27,44 +108,54 @@ resource "consul_certificate_authority" "connect" {
   ]
 }
 
-resource "consul_acl_policy" "anonymous" {
-  name  = "anonymous"
-  rules = <<-RULE
-key_prefix "_rexec/" {
-  policy = "deny"
-}
-service_prefix "" {
-  policy = "read"
-}
-node_prefix "" {
-  policy = "read"
-}
-agent_prefix "" {
-  policy = "read"
-}
-RULE
+resource "consul_acl_token" "agent" {
+  description = "Consul Agent Token"
+  policies    = [consul_acl_policy.everything["agent.hcl"].name]
+  local       = true
 }
 
-resource "consul_acl_token_policy_attachment" "attachment" {
+data "consul_acl_token_secret_id" "agent" {
+  accessor_id = consul_acl_token.agent.id
+}
+
+output "agent_token" {
+  value       = data.external.consul_agent.result.token
+  description = "Consul Agent token"
+  sensitive   = true
+}
+
+resource "consul_acl_token_policy_attachment" "anonymous" {
   token_id = "00000000-0000-0000-0000-000000000002"
-  policy   = consul_acl_policy.anonymous.name
+  policy   = consul_acl_policy.everything["anonymous.hcl"].name
 }
 
 resource "consul_acl_policy" "everything" {
-  for_each    = fileset(path.module, "cpol/*.hcl")
-  name        = regex("cpol/([[:alnum:]]+).hcl", each.value)[0]
-  datacenters = ["system-internal"]
-  rules       = file(each.value)
+  for_each    = fileset("${path.module}/cpol", "*.hcl")
+  name        = trimsuffix(each.value, ".hcl")
+  datacenters = [data.consul_agent_config.self.datacenter]
+  rules       = file("cpol/${each.value}")
+}
+
+output "consul_policies" {
+  description = "List of Consul Policies loaded."
+  value       = values(consul_acl_policy.everything)[*].name
 }
 
 resource "vault_consul_secret_backend_role" "everything" {
-  for_each = fileset(path.module, "cpol/*.hcl")
-  name     = regex("cpol/([[:alnum:]]+).hcl", each.value)[0]
+  for_each = consul_acl_policy.everything
+  name     = each.value["name"]
   backend  = vault_consul_secret_backend.consul.path
 
   policies = [
-    regex("cpol/([[:alnum:]]+).hcl", each.value)[0],
+    each.value["name"]
   ]
+}
+
+resource "vault_consul_secret_backend_role" "management" {
+  name    = "management"
+  backend = vault_consul_secret_backend.consul.path
+
+  policies = ["global-management"]
 }
 
 resource "consul_config_entry" "uuid" {
@@ -79,4 +170,25 @@ resource "consul_config_entry" "uuid" {
       Type       = "consul"
     }]
   })
+}
+
+resource "consul_prepared_query" "service_near_self" {
+  connect      = false
+  name         = ""
+  near         = "_agent"
+  only_passing = true
+  service      = "$${match(1)}"
+
+  dns {
+    ttl = "1m"
+  }
+
+  failover {
+    nearest_n = 2
+  }
+
+  template {
+    regexp = "^(.*)$"
+    type   = "name_prefix_match"
+  }
 }

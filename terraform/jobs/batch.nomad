@@ -4,8 +4,8 @@ job "batch" {
   type = "batch"
 
   periodic {
-    // Launch every 30 seconds
-    cron = "*/30 * * * * * *"
+    // Launch every 30 minutes
+    cron = "0 */30 * * * * *"
 
     // Do not allow overlapping runs.
     prohibit_overlap = true
@@ -25,7 +25,7 @@ job "batch" {
       driver = "docker"
 
       config {
-        image   = "alpine:3.13"
+        image   = "alpine:3.17"
         command = "date"
       }
     }

@@ -1,11 +1,16 @@
 #!/bin/sh
 
-IP_ADDRESS=$(ipconfig getifaddr en0)
 rm -rf data/*
 mkdir data/plugins
 
-export VAULT_TOKEN=$(vault token create -field=token -display-name=nomad-server -role nomad-server)
-nomad agent -config=nomad.hcl -data-dir=${PWD}/data -consul-address=$IP_ADDRESS:8500 -vault-address=http://$IP_ADDRESS:8200 -bootstrap-expect=1 > nomad.out 2>&1 &
+if [ -n "$(consul acl policy list | fgrep nomad-server)" ]
+then
+  export CONSUL_HTTP_TOKEN=$(consul acl token create -description "Nomad Agent Token $(date '+%s')" -policy-name nomad-server -policy-name nomad-client | awk '/SecretID/ {print $NF}')
+fi
+
+export VAULT_TOKEN=$(vault token create -field=token -display-name=nomad-server -role=nomad-server)
+
+nomad agent -config=nomad.hcl -data-dir=${PWD}/data -encrypt=$(nomad operator gossip keyring generate) -consul-address=$CONSUL_HTTP_ADDR -vault-address=$VAULT_ADDR -bootstrap-expect=1 > nomad.out 2>&1 &
 
 
 while ! fgrep -q 'nomad.core: established cluster id: cluster_id' nomad.out
@@ -13,7 +18,9 @@ do
   sleep 1
 done
 
+IP_ADDRESS=$(ipconfig getifaddr en0)
+export NOMAD_ADDR=http://${IP_ADDRESS}:4646
 nomad acl bootstrap > bootstrap.txt
-echo export NOMAD_ADDR=http://127.0.0.1:4646
+echo export NOMAD_ADDR=http://${IP_ADDRESS}:4646
 echo export NOMAD_TOKEN=$(awk '/Secret ID/ {print $NF}' bootstrap.txt)
 echo cd ../terraform

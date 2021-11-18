@@ -1,10 +1,14 @@
 #!/bin/sh
 
-consul agent -server -config-file=consul.hcl -bootstrap-expect=1 > consul.out 2>&1 &
+rm -rf data/*
+consul agent -server -config-dir=config/ -bootstrap-expect=1 > consul.out 2>&1 &
 
-sleep 2
+while ! fgrep -q 'agent.server: cluster leadership acquired' consul.out
+do
+  sleep 1
+done
 
 IP_ADDRESS=$(ipconfig getifaddr en0)
 echo export CONSUL_HTTP_ADDR=${IP_ADDRESS}:8500
-echo export CONSUL_HTTP_TOKEN=$(awk '/master/ {print substr($3,2,36)}' consul.hcl)
+echo export CONSUL_HTTP_TOKEN=$(awk '/initial_management/ {print substr($3,2,36)}' config/consul.hcl)
 echo cd ../vault

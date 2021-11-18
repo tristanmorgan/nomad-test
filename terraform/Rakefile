@@ -8,18 +8,24 @@ RuboCop::RakeTask.new do |rubocop|
 end
 
 desc 'Run all style checks and unit tests'
-task default: ['rubocop', 'nomad:fmt-check-all',
-               'nomad:validate-all', 'vault:fmt-all',
-               'consul:fmt-all', 'terraform:test']
+task default: ['rubocop', 'nomad:fmt-check',
+               'nomad:validate-all', 'vault:fmt-check',
+               'consul:fmt-check', 'terraform:test']
 
-TF_ACTIONS = %w[validate plan fmt refresh show output].freeze
+desc 'Run all style checks and unit tests'
+task fmt: ['rubocop:autocorrect', 'nomad:fmt-all',
+           'vault:fmt-all', 'consul:fmt-all',
+           'terraform:fmt']
+
+TF_ACTIONS = %w[validate plan fmt show output].freeze
 EXTRA_ACTIONS = [
   { name: 'fmt-check', command: 'terraform fmt -check' },
   { name: 'apply', command: 'terraform apply -auto-approve=true -parallelism=1' },
   { name: 'lint', command: 'tflint ' },
   { name: 'destroy', command: 'terraform destroy -auto-approve' },
+  { name: 'refresh', command: 'terraform  apply -refresh-only -auto-approve' },
   { name: 'document',
-    command: 'terraform-docs markdown --hide resources --hide data-sources --output-file README.md .' },
+    command: 'terraform-docs markdown --hide resources --hide data-sources --hide-empty --output-file README.md .' },
   { name: 'target', command: 'terraform destroy -auto-approve -target nomad_job.everything' },
   { name: 'init', command: 'terraform init -upgrade=true' }
 ].freeze
@@ -27,6 +33,9 @@ EXTRA_ACTIONS = [
 desc 'Run Terraform test then apply'
 task deploy: ['nomad:validate-all', 'terraform:fmt-check',
               'terraform:validate', 'terraform:apply']
+
+desc 'Run Terraform targeted destroy'
+task target: ['terraform:target', 'terraform:refresh']
 
 namespace :terraform do
   desc 'Run Terraform tests'
@@ -76,12 +85,12 @@ namespace :nomad do
       cmd.error!
     end
 
-    desc "Run Nomad format-#{target}"
+    desc "Run Nomad format-check-#{target}"
     task "fmt-check-#{target}" do
       puts "Running Hcledit fmt on #{target}"
       require 'mixlib/shellout'
       cmd = Mixlib::ShellOut.new(
-        "hcledit fmt -f jobs/#{target}.nomad | diff jobs/#{target}.nomad -"
+        "nomad fmt -check jobs/#{target}.nomad"
       )
       cmd.live_stdout = $stdout
       cmd.live_stderr = $stderr
@@ -94,7 +103,7 @@ namespace :nomad do
       puts "Running Hcledit fmt on #{target}"
       require 'mixlib/shellout'
       cmd = Mixlib::ShellOut.new(
-        "hcledit fmt -u -f jobs/#{target}.nomad"
+        "nomad fmt jobs/#{target}.nomad"
       )
       cmd.live_stdout = $stdout
       cmd.live_stderr = $stderr
@@ -107,7 +116,7 @@ namespace :nomad do
   task 'validate-all': NOMAD_BUILDS.map { |name| "nomad:validate-#{name}" }
 
   desc 'Run Hcledit fmt check all'
-  task 'fmt-check-all': NOMAD_BUILDS.map { |name| "nomad:fmt-check-#{name}" }
+  task 'fmt-check': NOMAD_BUILDS.map { |name| "nomad:fmt-check-#{name}" }
 
   desc 'Run Hcledit fmt all'
   task 'fmt-all': NOMAD_BUILDS.map { |name| "nomad:fmt-#{name}" }
@@ -116,6 +125,19 @@ end
 VAULT_BUILDS = Dir.glob('vpol/*.hcl').map { |name| name[5..-5] }
 namespace :vault do
   VAULT_BUILDS.each do |target|
+    desc "Run Vault format-check-#{target}"
+    task "fmt-check-#{target}" do
+      puts "Running Hcledit fmt on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "hcledit fmt -f vpol/#{target}.hcl | diff vpol/#{target}.hcl -"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+
     desc "Run Vault format-#{target}"
     task "fmt-#{target}" do
       puts "Running Vault format on #{target}"
@@ -130,6 +152,9 @@ namespace :vault do
     end
   end
 
+  desc 'Run Vault format check all'
+  task 'fmt-check': VAULT_BUILDS.map { |name| "vault:fmt-check-#{name}" }
+
   desc 'Run Vault format all'
   task 'fmt-all': VAULT_BUILDS.map { |name| "vault:fmt-#{name}" }
 end
@@ -137,6 +162,19 @@ end
 CONSUL_BUILDS = Dir.glob('cpol/*.hcl').map { |name| name[5..-5] }
 namespace :consul do
   CONSUL_BUILDS.each do |target|
+    desc "Run consul format-check-#{target}"
+    task "fmt-check-#{target}" do
+      puts "Running Hcledit fmt on #{target}"
+      require 'mixlib/shellout'
+      cmd = Mixlib::ShellOut.new(
+        "hcledit fmt -f cpol/#{target}.hcl | diff cpol/#{target}.hcl -"
+      )
+      cmd.live_stdout = $stdout
+      cmd.live_stderr = $stderr
+      cmd.run_command
+      cmd.error!
+    end
+
     desc "Run Consul format-#{target}"
     task "fmt-#{target}" do
       puts "Running Consul format on #{target}"
@@ -150,6 +188,9 @@ namespace :consul do
       cmd.error!
     end
   end
+
+  desc 'Run Consul format check all'
+  task 'fmt-check': CONSUL_BUILDS.map { |name| "consul:fmt-check-#{name}" }
 
   desc 'Run Consul format all'
   task 'fmt-all': CONSUL_BUILDS.map { |name| "consul:fmt-#{name}" }

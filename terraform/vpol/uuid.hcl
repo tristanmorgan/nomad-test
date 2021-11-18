@@ -7,6 +7,10 @@ path "auth/token/renew-self" {
   capabilities = ["update"]
 }
 
+path "sys/leases/renew" {
+  capabilities = ["update"]
+}
+
 path "consul/creds/uuid" {
   capabilities = ["read"]
 }

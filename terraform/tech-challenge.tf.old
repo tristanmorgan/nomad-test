@@ -1,0 +1,42 @@
+data "consul_service" "postgres" {
+  name = "postgres"
+}
+
+resource "vault_mount" "db" {
+  path = "postgres"
+  type = "database"
+}
+
+resource "vault_database_secret_backend_connection" "postgres" {
+  for_each      = tomap({ for s in data.consul_service.postgres.service : s.id => s... })
+  backend       = vault_mount.db.path
+  name          = each.value[0].node_name
+  allowed_roles = ["app"]
+
+  postgresql {
+    connection_url = "postgres://admin:Supers3cr3t@${each.value[0].address}:${each.value[0].port}/app?sslmode=disable"
+  }
+}
+
+output "database_roles" {
+  description = "List of Database connectionn roles."
+  value       = data.consul_service.postgres.service.*.node_name
+}
+
+resource "vault_database_secret_backend_role" "app" {
+  for_each = vault_database_secret_backend_connection.postgres
+  backend  = vault_mount.db.path
+  name     = "app"
+  db_name  = each.value.name
+  creation_statements = [
+    "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';",
+    "GRANT ALL PRIVILEGES ON DATABASE app TO \"{{name}}\";",
+    "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"{{name}}\";",
+    "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"{{name}}\";"
+  ]
+  revocation_statements = [
+    "REASSIGN OWNED BY \"{{name}}\" TO admin;",
+    "DROP OWNED BY \"{{name}}\";",
+    "DROP ROLE IF EXISTS \"{{name}}\";"
+  ]
+}

@@ -8,7 +8,7 @@ key_prefix "fabio" {
   policy = "write"
 }
 service_prefix "" {
-  policy = "write"
+  policy = "read"
 }
 node_prefix "" {
   policy = "read"

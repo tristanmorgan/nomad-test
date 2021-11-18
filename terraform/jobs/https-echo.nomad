@@ -26,7 +26,7 @@ job "https" {
       driver = "docker"
 
       config {
-        image = "vibrato/https-echo:v0.0.5"
+        image = "vibrato/https-echo:v0.0.6"
         args = [
           "-listen", ":${NOMAD_PORT_http}",
         ]

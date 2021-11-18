@@ -46,28 +46,27 @@ job "go" {
       }
 
       template {
-        data = <<EOH
-#!/bin/sh
+        data = <<-EOH
+        #!/bin/sh
 
-set -e
+        set -e
 
-echo building repo ${NOMAD_META_REPO} for target ${NOMAD_META_TARGET}
-apk add --no-cache git openssh-client
+        echo building repo ${NOMAD_META_REPO} for target ${NOMAD_META_TARGET}
+        apk add --no-cache git openssh-client
 
-git clone ${NOMAD_META_REPO} ${NOMAD_META_FOLDER}
+        git clone ${NOMAD_META_REPO} ${NOMAD_META_FOLDER}
 
-export GOOS=${NOMAD_META_TARGET}
-export GO111MODULE=on
-export CGO_ENABLED=0
+        export GOOS=${NOMAD_META_TARGET}
+        export GO111MODULE=on
+        export CGO_ENABLED=0
 
-cd ${NOMAD_META_FOLDER}
-go mod tidy
-go build -ldflags='-s -w' -a -v -o /build/build_${NOMAD_META_TARGET}
+        cd ${NOMAD_META_FOLDER}
+        go mod tidy
+        go build -ldflags='-s -w' -a -v -o /build/$(basename ${NOMAD_META_FOLDER})_${NOMAD_META_TARGET}
 
-ls -l /build
-echo done
-
-EOH
+        ls -l /build
+        echo done
+        EOH
 
         destination = "${NOMAD_TASK_DIR}/build.sh"
       }

@@ -1,0 +1,58 @@
+resource "vault_mount" "ldap" {
+  path                      = "openldap"
+  type                      = "openldap"
+  description               = "OpenLDAP secrets"
+  default_lease_ttl_seconds = 1800
+}
+
+resource "vault_generic_endpoint" "ldap_secret_config" {
+  path                 = "openldap/config"
+  ignore_absent_fields = true
+
+  data_json = jsonencode(
+    {
+      binddn   = "cn=admin,dc=introversion,dc=net"
+      bindpass = "adminpassword"
+      url      = "ldap://${data.external.local_info.result.ipaddress}:1389"
+      userdn   = "ou=users,dc=introversion,dc=net"
+      groupdn  = "ou=users,dc=introversion,dc=net"
+    }
+  )
+  depends_on = [
+    vault_mount.ldap,
+  ]
+}
+
+resource "vault_generic_endpoint" "ldap_secret_role" {
+  path                 = "openldap/role/dynamic-role"
+  ignore_absent_fields = true
+
+  data_json = jsonencode(
+    {
+      creation_ldif     = "dn: cn={{.Username}},ou=users,dc=introversion,dc=net\ncn: {{.Username | lowercase}}\nsn: {{.RoleName}}\nobjectClass: inetOrgPerson\nuserPassword: {{.Password}}\n\ndn: cn=machines,ou=users,dc=introversion,dc=net\ncn: machines\nobjectClass: groupOfNames\nmember: cn={{.Username}},ou=users,dc=introversion,dc=net\n"
+      default_ttl       = 3600
+      deletion_ldif     = "dn: cn={{.Username}},ou=users,dc=introversion,dc=net\nchangetype: delete\n"
+      rollback_ldif     = "dn: cn={{.Username}},ou=users,dc=introversion,dc=net\nchangetype: delete\n"
+      username_template = "v_{{.DisplayName}}_{{.RoleName}}_{{random 10}}_{{unix_time}}"
+    }
+  )
+  depends_on = [
+    vault_generic_endpoint.ldap_secret_config,
+  ]
+}
+
+resource "vault_generic_endpoint" "ldap_secret_user01" {
+  path                 = "openldap/static-role/user01"
+  ignore_absent_fields = true
+
+  data_json = jsonencode(
+    {
+      dn              = "cn=user01,ou=users,dc=introversion,dc=net"
+      rotation_period = 3600
+      username        = "user01"
+    }
+  )
+  depends_on = [
+    vault_generic_endpoint.ldap_secret_config,
+  ]
+}

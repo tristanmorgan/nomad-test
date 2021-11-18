@@ -11,7 +11,6 @@ job "cn-demo" {
     service {
       port = "api"
       name = "uuid-api"
-      tags = ["urlprefix-uuid-api.service.consul/ proto=tcp"]
       check {
         port     = "api"
         type     = "tcp"
@@ -25,6 +24,14 @@ job "cn-demo" {
       }
     }
 
+    vault {
+      policies = ["uuid"]
+      env      = false
+
+      change_mode   = "signal"
+      change_signal = "SIGHUP"
+    }
+
     task "generate" {
       driver = "docker"
 
@@ -32,25 +39,19 @@ job "cn-demo" {
         image = "hashicorpnomad/uuid-api:v5"
         ports = ["api"]
       }
-      vault {
-        policies = ["uuid"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
       template {
-        data = <<-EOF
-{{with secret "consul/creds/uuid"}}{{.Data.token}}{{end}}
-      EOF
+        data = <<-EOH
+        CONSUL_HTTP_TOKEN="{{with secret "consul/creds/uuid"}}{{.Data.token}}{{end}}"
+        CONSUL_HTTP_ADDR="{{ env "attr.unique.network.ip-address"}}:8500"
+        EOH
 
-        destination = "${NOMAD_TASK_DIR}/consul.token"
+        destination = "${NOMAD_SECRETS_DIR}/uuid.env"
+        env         = true
+        change_mode = "restart"
       }
       env {
-        BIND                   = "0.0.0.0"
-        PORT                   = "${NOMAD_PORT_api}"
-        CONSUL_HTTP_ADDR       = "${NOMAD_IP_api}:8500"
-        CONSUL_GRPC_ADDR       = "${NOMAD_IP_api}:8502"
-        CONSUL_HTTP_TOKEN_FILE = "${NOMAD_TASK_DIR}/consul.token"
+        BIND = "0.0.0.0"
+        PORT = "${NOMAD_PORT_api}"
       }
     }
   }
@@ -80,6 +81,14 @@ job "cn-demo" {
       }
     }
 
+    vault {
+      policies = ["uuid"]
+      env      = false
+
+      change_mode   = "signal"
+      change_signal = "SIGHUP"
+    }
+
     task "frontend" {
       driver = "docker"
 
@@ -87,32 +96,34 @@ job "cn-demo" {
         image = "hashicorpnomad/uuid-fe:v5"
         ports = ["http"]
       }
-      vault {
-        policies = ["uuid"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
       template {
-        data = <<-EOF
-{{with secret "consul/creds/uuid"}}{{.Data.token}}{{end}}
-       EOF
+        data = <<-EOH
+        CONSUL_HTTP_TOKEN="{{with secret "consul/creds/uuid"}}{{.Data.token}}{{end}}"
+        CONSUL_HTTP_ADDR="{{ env "attr.unique.network.ip-address"}}:8500"
+        EOH
 
-        destination = "${NOMAD_TASK_DIR}/consul.token"
+        destination = "${NOMAD_SECRETS_DIR}/uuid.env"
+        env         = true
+        change_mode = "restart"
       }
       env {
-        UPSTREAM               = "uuid-api"
-        BIND                   = "0.0.0.0"
-        PORT                   = "${NOMAD_PORT_http}"
-        CONSUL_HTTP_ADDR       = "${NOMAD_IP_http}:8500"
-        CONSUL_GRPC_ADDR       = "${NOMAD_IP_http}:8502"
-        CONSUL_HTTP_TOKEN_FILE = "${NOMAD_TASK_DIR}/consul.token"
+        UPSTREAM = "uuid-api"
+        BIND     = "0.0.0.0"
+        PORT     = "${NOMAD_PORT_http}"
       }
     }
     scaling {
       enabled = true
       min     = 1
       max     = 10
+
+      policy {
+        check "fixed-value-check" {
+          strategy "fixed-value" {
+            value = 2
+          }
+        }
+      }
     }
   }
 }

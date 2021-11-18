@@ -1,0 +1,28 @@
+resource "vault_ldap_auth_backend" "ldap" {
+  path        = "ldap"
+  description = "LDAP User authentication"
+  url         = "ldap://${data.external.local_info.result.ipaddress}:1389"
+  userdn      = "ou=users,dc=introversion,dc=net"
+  userattr    = "cn"
+  discoverdn  = false
+  groupdn     = "ou=users,dc=introversion,dc=net"
+  groupfilter = "(&(objectClass=groupOfNames)(member= {{.UserDN}}))"
+  groupattr   = "cn"
+  binddn      = "cn=admin,dc=introversion,dc=net"
+  bindpass    = "adminpassword"
+
+  token_ttl     = 3600
+  token_max_ttl = 28800
+}
+
+resource "vault_identity_group" "readers" {
+  name     = "readers"
+  type     = "external"
+  policies = ["admin"]
+}
+
+resource "vault_identity_group_alias" "readers" {
+  name           = "readers"
+  mount_accessor = vault_ldap_auth_backend.ldap.accessor
+  canonical_id   = vault_identity_group.readers.id
+}

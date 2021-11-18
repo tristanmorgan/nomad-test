@@ -1,3 +1,5 @@
+# The token in this resource is sensitive and
+# ends up in the terraform state unfortunately
 data "external" "local_info" {
   program = ["/bin/bash", "-c", <<EOF
 #!/bin/bash
@@ -5,14 +7,53 @@ data "external" "local_info" {
 set -e
 IP_ADDRESS=$(ipconfig getifaddr en0)
 
+if [ -r .consul-ca.txt ]
+then
+  CA_TOKEN=$(cat .consul-ca.txt)
+  set +e
+  vault token lookup $CA_TOKEN 2>/dev/null > /dev/null
+  if [ $? -ne 0 ]
+  then
+      CA_TOKEN=
+  fi
+  set -e
+fi
+if [ -z "$CA_TOKEN" ]
+then
+  CA_TOKEN=$(vault token create -field=token -display-name=consul-ca -role=consul-ca)
+  echo -n $CA_TOKEN > .consul-ca.txt
+fi
+ROUTER_IP=$(networksetup -getinfo 'Wi-Fi' | awk '/^Router/ {print $NF}')
+
 echo "{\"ipaddress\":\"$IP_ADDRESS\","
-echo " \"consultoken\":\"$CONSUL_HTTP_TOKEN\","
-echo " \"nomadtoken\":\"$NOMAD_TOKEN\","
-echo " \"vaulttoken\":\"$(vault print token)\"}"
+echo " \"router\":\"$ROUTER_IP\","
+echo " \"currentuser\":\"$USER\","
+echo " \"vaulttoken\":\"$CA_TOKEN\"}"
 EOF
+  ]
+
+  depends_on = [
+    vault_token_auth_backend_role.consul_ca
   ]
 }
 
 data "http" "nomad_server_policy" {
   url = "https://nomadproject.io/data/vault/nomad-server-policy.hcl"
+}
+
+data "consul_service" "nomad" {
+  name = "nomad"
+  tag  = "http"
+}
+
+data "external" "consul_agent" {
+  program = ["/bin/bash", "-c", <<EOF
+#!/bin/bash
+
+set -e
+OUTPUT=$(consul acl set-agent-token agent ${data.consul_acl_token_secret_id.agent.secret_id})
+
+echo "{\"token\":\"${data.consul_acl_token_secret_id.agent.secret_id}\"}"
+EOF
+  ]
 }
