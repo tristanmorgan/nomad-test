@@ -69,6 +69,13 @@ job "autoscaler" {
           driver = "nomad-apm"
         }
 
+        apm "prometheus" {
+          driver = "prometheus"
+          config = {
+            address = "http://{{ range service "prometheus" }}{{ .Address }}:{{ .Port }}{{ end }}"
+          }
+        }
+
         policy {
           default_cooldown            = "1m"
           default_evaluation_interval = "15s"

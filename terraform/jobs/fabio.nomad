@@ -68,7 +68,7 @@ job "fabio" {
         FABIO_log_access_format                = "$remote_host - - [$time_common] \"$request_method $request_host$request_uri $request_proto\" $response_status $response_body_size"
         FABIO_proxy_strategy                   = "rr"
         FABIO_proxy_cs                         = "cs=service-consul;type=vault-pki;cert=intca/issue/consul"
-        FABIO_metrics_prefix                   = "{{clean .Exec}}.{{clean .Hostname}}."
+        FABIO_metrics_prefix                   = "{{clean .Exec}}."
       }
     }
   }

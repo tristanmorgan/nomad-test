@@ -118,9 +118,12 @@ job "cn-demo" {
       max     = 10
 
       policy {
-        check "fixed-value-check" {
-          strategy "fixed-value" {
-            value = 2
+        check "per_second" {
+          source = "prometheus"
+          query  = "sum(deriv(fabio__route_count{host=\"uuid-fe.service.consul\"}[1m])) * 60"
+
+          strategy "target-value" {
+            value = 60
           }
         }
       }
