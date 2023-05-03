@@ -38,7 +38,7 @@ EOF
 }
 
 data "http" "nomad_server_policy" {
-  url = "https://nomadproject.io/data/vault/nomad-server-policy.hcl"
+  url = "https://www.nomadproject.io/data/vault/nomad-server-policy.hcl"
 }
 
 data "consul_service" "nomad" {
@@ -46,14 +46,3 @@ data "consul_service" "nomad" {
   tag  = "http"
 }
 
-data "external" "consul_agent" {
-  program = ["/bin/bash", "-c", <<EOF
-#!/bin/bash
-
-set -e
-OUTPUT=$(consul acl set-agent-token agent ${data.consul_acl_token_secret_id.agent.secret_id})
-
-echo "{\"token\":\"${data.consul_acl_token_secret_id.agent.secret_id}\"}"
-EOF
-  ]
-}

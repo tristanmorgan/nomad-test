@@ -25,8 +25,6 @@ setup your environment
 
 run Docker for mac.
 
-run ./build.sh in /doh-server
-
 run ./start.sh in /consul
 
 (then export CONSUL_HTTP_TOKEN)

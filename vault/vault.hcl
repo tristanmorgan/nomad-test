@@ -10,8 +10,8 @@ storage "raft" {
 }
 
 service_registration "consul" {
-  scheme       = "http"
-  service      = "vault-service"
+  scheme  = "http"
+  service = "vault-service"
 }
 
 listener "tcp" {

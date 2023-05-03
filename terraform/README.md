@@ -7,13 +7,14 @@ No requirements.
 | Name | Version |
 |------|---------|
 | <a name="provider_consul"></a> [consul](#provider\_consul) | 2.17.0 |
-| <a name="provider_external"></a> [external](#provider\_external) | 2.2.3 |
-| <a name="provider_http"></a> [http](#provider\_http) | 3.2.1 |
-| <a name="provider_local"></a> [local](#provider\_local) | 2.3.0 |
-| <a name="provider_nomad"></a> [nomad](#provider\_nomad) | 1.4.19 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
+| <a name="provider_external"></a> [external](#provider\_external) | 2.3.1 |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.3.0 |
+| <a name="provider_local"></a> [local](#provider\_local) | 2.4.0 |
+| <a name="provider_nomad"></a> [nomad](#provider\_nomad) | 1.4.20 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.5.1 |
+| <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 | <a name="provider_time"></a> [time](#provider\_time) | 0.9.1 |
-| <a name="provider_vault"></a> [vault](#provider\_vault) | 3.12.0 |
+| <a name="provider_vault"></a> [vault](#provider\_vault) | 3.16.0 |
 
 ## Modules
 
@@ -33,7 +34,6 @@ No modules.
 | [consul_config_entry.router_router](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/config_entry) | resource |
 | [consul_config_entry.uuid](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/config_entry) | resource |
 | [consul_keys.fabio_config](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/keys) | resource |
-| [consul_keys.fabio_noroute](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/keys) | resource |
 | [consul_node.router](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/node) | resource |
 | [consul_prepared_query.service_near_self](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/prepared_query) | resource |
 | [consul_service.router](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/service) | resource |
@@ -43,6 +43,7 @@ No modules.
 | [nomad_job.everything](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/job) | resource |
 | [nomad_scheduler_config.config](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/scheduler_config) | resource |
 | [random_password.password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [terraform_data.consul_agent](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [time_rotating.ca_cleanup](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
 | [time_rotating.intca_rotation](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
 | [vault_audit.file](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/audit) | resource |
@@ -79,7 +80,6 @@ No modules.
 | [consul_acl_token_secret_id.vault](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/data-sources/acl_token_secret_id) | data source |
 | [consul_agent_config.self](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/data-sources/agent_config) | data source |
 | [consul_service.nomad](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/data-sources/service) | data source |
-| [external_external.consul_agent](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
 | [external_external.local_info](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
 | [http_http.nomad_server_policy](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
 | [vault_policy_document.admin](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/data-sources/policy_document) | data source |
@@ -95,43 +95,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_agent_token"></a> [agent\_token](#output\_agent\_token) | Consul Agent token |
 | <a name="output_consul_policies"></a> [consul\_policies](#output\_consul\_policies) | List of Consul Policies loaded. |
 | <a name="output_nomad_jobs"></a> [nomad\_jobs](#output\_nomad\_jobs) | List of Nomad Jobs loaded. |
 | <a name="output_nomad_policies"></a> [nomad\_policies](#output\_nomad\_policies) | List of Nomad Policies loaded. |
 | <a name="output_userpass"></a> [userpass](#output\_userpass) | username and password |
 | <a name="output_vault_policies"></a> [vault\_policies](#output\_vault\_policies) | List of Vault Policies loaded. |
-
-<!-- BEGIN_TF_DOCS -->
-
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_consul"></a> [consul](#provider\_consul) | 2.17.0 |
-| <a name="provider_external"></a> [external](#provider\_external) | 2.2.3 |
-| <a name="provider_http"></a> [http](#provider\_http) | 3.2.1 |
-| <a name="provider_local"></a> [local](#provider\_local) | 2.3.0 |
-| <a name="provider_nomad"></a> [nomad](#provider\_nomad) | 1.4.19 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
-| <a name="provider_time"></a> [time](#provider\_time) | 0.9.1 |
-| <a name="provider_vault"></a> [vault](#provider\_vault) | 3.12.0 |
-
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_no_deploy"></a> [no\_deploy](#input\_no\_deploy) | set to true to disable deployments | `bool` | `false` | no |
-
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| <a name="output_agent_token"></a> [agent\_token](#output\_agent\_token) | Consul Agent token |
-| <a name="output_consul_policies"></a> [consul\_policies](#output\_consul\_policies) | List of Consul Policies loaded. |
-| <a name="output_nomad_jobs"></a> [nomad\_jobs](#output\_nomad\_jobs) | List of Nomad Jobs loaded. |
-| <a name="output_nomad_policies"></a> [nomad\_policies](#output\_nomad\_policies) | List of Nomad Policies loaded. |
-| <a name="output_userpass"></a> [userpass](#output\_userpass) | username and password |
-| <a name="output_vault_policies"></a> [vault\_policies](#output\_vault\_policies) | List of Vault Policies loaded. |
-<!-- END_TF_DOCS -->

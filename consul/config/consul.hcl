@@ -44,8 +44,8 @@ ports = {
 }
 protocol      = 3
 raft_protocol = 3
-raft_boltdb = {
-  NoFreelistSync = true
+raft_logstore {
+  backend = "wal"
 }
 recursors = [
   "{{GetPrivateIP}}",
@@ -59,7 +59,11 @@ telemetry = {
   metrics_prefix            = "consul"
 }
 ui_config {
-  enabled = true
+  enabled          = true
+  metrics_provider = "prometheus"
+  metrics_proxy {
+    base_url = "https://prometheus.service.consul/"
+  }
 }
 connect {
   enabled = true

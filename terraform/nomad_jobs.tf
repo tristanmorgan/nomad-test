@@ -101,16 +101,10 @@ output "nomad_jobs" {
 
 resource "consul_keys" "fabio_config" {
   key {
-    path = "fabio/config"
-    value = templatefile("${path.module}/fabio_config.tpl",
-      {
-        ipaddress = data.external.local_info.result.ipaddress
-      }
-    )
+    path  = "fabio/config"
+    value = file("${path.module}/fabio_config.tpl")
   }
-}
 
-resource "consul_keys" "fabio_noroute" {
   key {
     path  = "fabio/noroute.html"
     value = file("${path.module}/noroute.html")

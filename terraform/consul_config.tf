@@ -118,10 +118,12 @@ data "consul_acl_token_secret_id" "agent" {
   accessor_id = consul_acl_token.agent.id
 }
 
-output "agent_token" {
-  value       = data.external.consul_agent.result.token
-  description = "Consul Agent token"
-  sensitive   = true
+resource "terraform_data" "consul_agent" {
+  input = sensitive(data.consul_acl_token_secret_id.agent.secret_id)
+
+  provisioner "local-exec" {
+    command = "consul acl set-agent-token agent ${sensitive(data.consul_acl_token_secret_id.agent.secret_id)}"
+  }
 }
 
 resource "consul_acl_token_policy_attachment" "anonymous" {

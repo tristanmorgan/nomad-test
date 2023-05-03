@@ -1,14 +1,14 @@
 service {
-  name = "vault"
+  name  = "vault"
   token = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
-  id   = "vault"
-  tags = ["urlprefix-vault.service.consul/","active"]
-  port = 8200
+  id    = "vault"
+  tags  = ["urlprefix-vault.service.consul/", "active"]
+  port  = 8200
 
   checks = [
     {
       id            = "upstream"
-      alias_service = "vault-service:10.10.10.36:8200"
+      alias_service = "vault-service:10.10.10.138:8200"
     },
     {
       id       = "service"
@@ -18,5 +18,8 @@ service {
       timeout  = "2s"
     }
   ]
+  meta = {
+    external-source = "consul"
+  }
 }
 

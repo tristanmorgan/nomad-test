@@ -1,28 +1,30 @@
-name = "introversion"
-datacenter = "system-internal"
-region     = "global"
+name                 = "introversion"
+datacenter           = "system-internal"
+region               = "global"
 disable_update_check = true
 
 leave_on_interrupt = true
 leave_on_terminate = true
+
+bind_addr = "{{GetPrivateIP}}"
 
 acl {
   enabled = true
 }
 
 consul {
-  tags           = ["urlprefix-nomad.service.consul/"]
+  tags = ["urlprefix-nomad.service.consul/"]
 }
 
 client {
-  enabled = true
+  enabled    = true
   node_class = "client"
   host_volume "build-output" {
     path      = "/private/tmp/"
     read_only = false
   }
   meta {
-    meta.node_type = "server"
+    node_type = "server"
   }
   # cpu_total_compute = 10404
   options = {
@@ -31,8 +33,8 @@ client {
 }
 
 server {
-  enabled          = true
-  bootstrap_expect = 1
+  enabled              = true
+  bootstrap_expect     = 1
   authoritative_region = "global"
 }
 
@@ -58,7 +60,7 @@ telemetry {
 }
 
 ui {
-  enabled =  true
+  enabled = true
 
   consul {
     ui_url = "https://consul.service.consul/ui"

@@ -123,7 +123,7 @@ job "cn-demo" {
           query  = "sum(deriv(fabio__route_count{host=\"uuid-fe.service.consul\"}[1m])) * 60"
 
           strategy "target-value" {
-            value = 60
+            target = 60
           }
         }
       }
