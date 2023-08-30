@@ -60,15 +60,17 @@ job "fabio" {
         change_mode = "restart"
       }
       env {
-        FABIO_insecure                         = true
-        FABIO_registry_consul_register_enabled = "false"
-        FABIO_proxy_addr                       = ":${NOMAD_PORT_https};proto=https+tcp+sni;cs=service-consul;tlsmin=tls12,:${NOMAD_PORT_prom};proto=prometheus"
-        FABIO_ui_addr                          = ":${NOMAD_PORT_admin}"
-        FABIO_log_access_target                = "stdout"
-        FABIO_log_access_format                = "$remote_host - - [$time_common] \"$request_method $request_host$request_uri $request_proto\" $response_status $response_body_size"
-        FABIO_proxy_strategy                   = "rr"
-        FABIO_proxy_cs                         = "cs=service-consul;type=vault-pki;cert=intca/issue/consul"
-        FABIO_metrics_prefix                   = "{{clean .Exec}}."
+        FABIO_insecure                           = true
+        FABIO_registry_consul_register_enabled   = "false"
+        FABIO_proxy_addr                         = ":${NOMAD_PORT_https};proto=https+tcp+sni;cs=service-consul;tlsmin=tls12,:${NOMAD_PORT_prom};proto=prometheus"
+        FABIO_ui_addr                            = ":${NOMAD_PORT_admin}"
+        FABIO_log_access_target                  = "stdout"
+        FABIO_log_access_format                  = "$remote_host - - [$time_common] \"$request_method $request_host$request_uri $request_proto\" $response_status $response_body_size"
+        FABIO_proxy_strategy                     = "rr"
+        FABIO_proxy_cs                           = "cs=service-consul;type=vault-pki;cert=intca/issue/consul"
+        FABIO_metrics_prefix                     = "{{clean .Exec}}."
+        FABIO_ui_routingtable_source_linkenabled = "true"
+        FABIO_ui_routingtable_source_scheme      = "https"
       }
     }
   }
