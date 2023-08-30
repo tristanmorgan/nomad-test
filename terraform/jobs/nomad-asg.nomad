@@ -35,6 +35,10 @@ job "autoscaler" {
     task "autoscaler" {
       driver = "docker"
 
+      identity {
+        env = true
+      }
+
       vault {
         policies = ["autoscaler"]
         env      = false
@@ -61,8 +65,8 @@ job "autoscaler" {
         }
 
         nomad {
-          address   = "http://{{ env "attr.unique.network.ip-address" }}:4646"
-          token     = "{{with secret "nomad/creds/autoscaler"}}{{.Data.secret_id}}{{end}}"
+          address = "http://{{ env "attr.unique.network.ip-address" }}:4646"
+          token   = "{{with secret "nomad/creds/autoscaler"}}{{.Data.secret_id}}{{end}}"
         }
 
         apm "nomad-apm" {

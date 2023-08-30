@@ -34,6 +34,7 @@ resource "consul_config_entry" "router_defaults" {
   kind = "service-defaults"
 
   config_json = jsonencode({
+    AccessLogs       = {}
     Protocol         = "http"
     Expose           = {}
     MeshGateway      = {}
@@ -69,6 +70,7 @@ resource "consul_config_entry" "global_proxy" {
   kind = "proxy-defaults"
 
   config_json = jsonencode({
+    AccessLogs = {}
     Config = {
       protocol = "http"
     }

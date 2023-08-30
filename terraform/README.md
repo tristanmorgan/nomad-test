@@ -6,15 +6,15 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_consul"></a> [consul](#provider\_consul) | 2.17.0 |
+| <a name="provider_consul"></a> [consul](#provider\_consul) | 2.18.0 |
 | <a name="provider_external"></a> [external](#provider\_external) | 2.3.1 |
-| <a name="provider_http"></a> [http](#provider\_http) | 3.3.0 |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.4.0 |
 | <a name="provider_local"></a> [local](#provider\_local) | 2.4.0 |
-| <a name="provider_nomad"></a> [nomad](#provider\_nomad) | 1.4.20 |
+| <a name="provider_nomad"></a> [nomad](#provider\_nomad) | 2.0.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.5.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 | <a name="provider_time"></a> [time](#provider\_time) | 0.9.1 |
-| <a name="provider_vault"></a> [vault](#provider\_vault) | 3.16.0 |
+| <a name="provider_vault"></a> [vault](#provider\_vault) | 3.19.0 |
 
 ## Modules
 

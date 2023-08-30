@@ -82,8 +82,7 @@ resource "nomad_job" "everything" {
   detach   = false
 
   hcl2 {
-    enabled = true
-    vars    = {}
+    vars = {}
   }
 
   depends_on = [

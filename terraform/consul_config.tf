@@ -90,7 +90,7 @@ resource "vault_consul_secret_backend" "consul" {
 resource "consul_certificate_authority" "connect" {
   connect_provider = "vault"
 
-  config = {
+  config_json = jsonencode({
     IntermediateCertTTL      = "72h0m0s"
     Address                  = "http://${data.external.local_info.result.ipaddress}:8200"
     Token                    = sensitive(data.external.local_info.result.vaulttoken)
@@ -100,7 +100,7 @@ resource "consul_certificate_authority" "connect" {
     ForceWithoutCrossSigning = true
     PrivateKeyBits           = vault_pki_secret_backend_root_cert.rootca.key_bits
     PrivateKeyType           = vault_pki_secret_backend_root_cert.rootca.key_type
-  }
+  })
 
   depends_on = [
     vault_pki_secret_backend_config_urls.intca,
