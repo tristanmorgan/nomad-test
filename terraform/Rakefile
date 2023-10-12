@@ -46,12 +46,9 @@ namespace :terraform do
     desc "Run Terraform #{action}"
     task action do
       puts "Running #{action}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new("terraform #{action}")
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("terraform #{action}")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
   end
 
@@ -59,12 +56,9 @@ namespace :terraform do
     desc "Run Terraform #{extra[:name]}"
     task extra[:name] do
       puts "Running #{extra[:name]}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(extra[:command])
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn(extra[:command])
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
   end
 end
@@ -75,40 +69,25 @@ namespace :nomad do
     desc "Run Nomad validate-#{target}"
     task "validate-#{target}" do
       puts "Running Nomad validate on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "nomad job validate jobs/#{target}.nomad"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("nomad job validate jobs/#{target}.nomad")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
 
     desc "Run Nomad format-check-#{target}"
     task "fmt-check-#{target}" do
       puts "Running Hcledit fmt on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "nomad fmt -check jobs/#{target}.nomad"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("nomad fmt -check jobs/#{target}.nomad")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
 
     desc "Run Nomad format-#{target}"
     task "fmt-#{target}" do
       puts "Running Hcledit fmt on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "nomad fmt jobs/#{target}.nomad"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("nomad fmt jobs/#{target}.nomad")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
   end
 
@@ -128,27 +107,17 @@ namespace :vault do
     desc "Run Vault format-check-#{target}"
     task "fmt-check-#{target}" do
       puts "Running Hcledit fmt on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "hcledit fmt -f vpol/#{target}.hcl | diff vpol/#{target}.hcl -"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("hcledit fmt -f vpol/#{target}.hcl | diff vpol/#{target}.hcl -")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
 
     desc "Run Vault format-#{target}"
     task "fmt-#{target}" do
       puts "Running Vault format on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "vault policy fmt vpol/#{target}.hcl"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("vault policy fmt vpol/#{target}.hcl")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
   end
 
@@ -165,27 +134,17 @@ namespace :consul do
     desc "Run consul format-check-#{target}"
     task "fmt-check-#{target}" do
       puts "Running Hcledit fmt on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "hcledit fmt -f cpol/#{target}.hcl | diff cpol/#{target}.hcl -"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("hcledit fmt -f cpol/#{target}.hcl | diff cpol/#{target}.hcl -")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
 
     desc "Run Consul format-#{target}"
     task "fmt-#{target}" do
       puts "Running Consul format on #{target}"
-      require 'mixlib/shellout'
-      cmd = Mixlib::ShellOut.new(
-        "hcledit fmt -u -f cpol/#{target}.hcl"
-      )
-      cmd.live_stdout = $stdout
-      cmd.live_stderr = $stderr
-      cmd.run_command
-      cmd.error!
+      pid = Process.spawn("hcledit fmt -u -f cpol/#{target}.hcl")
+      Process.wait pid
+      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
     end
   end
 

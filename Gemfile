@@ -5,7 +5,3 @@ source 'https://rubygems.org'
 gem 'rake'
 gem 'rubocop'
 gem 'rubocop-rake'
-
-gem 'mixlib-shellout'
-
-gem 'json', '= 2.6.2'

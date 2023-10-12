@@ -65,6 +65,7 @@ No modules.
 | [vault_pki_secret_backend_config_urls.rootca](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/pki_secret_backend_config_urls) | resource |
 | [vault_pki_secret_backend_intermediate_cert_request.intca](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/pki_secret_backend_intermediate_cert_request) | resource |
 | [vault_pki_secret_backend_intermediate_set_signed.intca](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/pki_secret_backend_intermediate_set_signed) | resource |
+| [vault_pki_secret_backend_issuer.default](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/pki_secret_backend_issuer) | resource |
 | [vault_pki_secret_backend_role.consul](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/pki_secret_backend_role) | resource |
 | [vault_pki_secret_backend_root_cert.rootca](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/pki_secret_backend_root_cert) | resource |
 | [vault_pki_secret_backend_root_sign_intermediate.intca](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/pki_secret_backend_root_sign_intermediate) | resource |
