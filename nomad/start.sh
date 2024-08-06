@@ -5,10 +5,7 @@ mkdir data/plugins
 
 unset DOCKER_HOST
 
-if [ -n "$(consul acl policy list | fgrep nomad-server)" ]
-then
-  export CONSUL_HTTP_TOKEN=$(consul acl token create -description "Nomad Agent Token $(date '+%s')" -policy-name nomad-server -policy-name nomad-client | awk '/SecretID/ {print $NF}')
-fi
+export CONSUL_HTTP_TOKEN=$(consul acl token create -templated-policy builtin/nomad-server -description "Nomad Agent Token $(date '+%s')" | awk '/SecretID/ {print $NF}')
 
 export VAULT_TOKEN=$(vault token create -field=token -display-name=nomad-server -role=nomad-server)
 

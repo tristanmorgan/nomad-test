@@ -65,16 +65,17 @@ job "monitoring" {
                 target_label: job
             metric_relabel_configs:
               - source_labels:
-                 - __name__
+                  - __name__
                 regex: '.*_bucket'
                 action: drop
           - job_name: consul
             metrics_path: "/v1/agent/metrics"
+            {{with secret "consul/creds/prom"}}
+            authorization:
+              credentials: "{{.Data.token}}"{{end}}
             params:
               format:
                 - "prometheus"
-              token:
-                - "{{with secret "consul/creds/prom"}}{{.Data.token}}{{end}}"
             static_configs:
               - targets:{{ range service "consul" }}
                   - {{ .Address }}:8500{{ end }}
@@ -104,7 +105,7 @@ job "monitoring" {
       }
 
       config {
-        image = "prom/prometheus:v2.41.0"
+        image = "prom/prometheus:v2.53.1"
         args = [
           "--storage.tsdb.path=/prometheus/promdata",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",

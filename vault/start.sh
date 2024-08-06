@@ -5,10 +5,7 @@ mkdir raft
 
 IP_ADDRESS=$(ipconfig getifaddr en0)
 
-if [ -n "$(consul acl policy list | fgrep vault-server)" ]
-then
-  export CONSUL_HTTP_TOKEN=$(consul acl token create -description "Vault Agent Token $(date '+%s')" -policy-name vault-server | awk '/SecretID/ {print $NF}')
-fi
+export CONSUL_HTTP_TOKEN=$(consul acl token create -templated-policy builtin/service -var name:vault-service -description "Vault Agent Token $(date '+%s')" | awk '/SecretID/ {print $NF}')
 
 vault server -config=vault.hcl > vault.out 2>&1 &
 

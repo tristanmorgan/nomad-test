@@ -110,8 +110,13 @@ resource "consul_certificate_authority" "connect" {
 
 resource "consul_acl_token" "agent" {
   description = "Consul Agent Token"
-  policies    = [consul_acl_policy.everything["agent.hcl"].name]
   local       = true
+  templated_policies {
+    template_name = "builtin/node"
+    template_variables {
+      name = "introversion"
+    }
+  }
 }
 
 data "consul_acl_token_secret_id" "agent" {
@@ -119,10 +124,30 @@ data "consul_acl_token_secret_id" "agent" {
 }
 
 resource "terraform_data" "consul_agent" {
-  input = sensitive(data.consul_acl_token_secret_id.agent.secret_id)
+  input = data.consul_acl_token_secret_id.agent.secret_id
 
   provisioner "local-exec" {
-    command = "consul acl set-agent-token agent ${sensitive(data.consul_acl_token_secret_id.agent.secret_id)}"
+    command = "consul acl set-agent-token agent ${data.consul_acl_token_secret_id.agent.secret_id}"
+  }
+}
+
+resource "consul_acl_token" "dns" {
+  description = "Consul DNS Token"
+  local       = true
+  templated_policies {
+    template_name = "builtin/dns"
+  }
+}
+
+data "consul_acl_token_secret_id" "dns" {
+  accessor_id = consul_acl_token.dns.id
+}
+
+resource "terraform_data" "consul_dns" {
+  input = data.consul_acl_token_secret_id.dns.secret_id
+
+  provisioner "local-exec" {
+    command = "consul acl set-agent-token dns ${data.consul_acl_token_secret_id.dns.secret_id}"
   }
 }
 
