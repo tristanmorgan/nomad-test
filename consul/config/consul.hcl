@@ -6,8 +6,9 @@ acl {
   enable_token_persistence = true
   enable_token_replication = true
   tokens {
-    agent              = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
-    initial_management = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
+    agent                            = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
+    initial_management               = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
+    config_file_service_registration = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
   }
 }
 addresses {

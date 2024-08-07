@@ -1,9 +1,7 @@
 service {
-  name  = "vault"
-  token = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
-  id    = "vault"
-  tags  = ["urlprefix-vault.service.consul/", "active"]
-  port  = 8200
+  name = "vault"
+  tags = ["urlprefix-vault.service.consul/", "active"]
+  port = 8200
 
   checks = [
     {

@@ -11,5 +11,4 @@ done
 IP_ADDRESS=$(ipconfig getifaddr en0)
 echo export CONSUL_HTTP_ADDR=${IP_ADDRESS}:8500
 echo export CONSUL_HTTP_TOKEN=$(awk '/initial_management/ {print substr($3,2,36)}' config/consul.hcl)
-echo terraform apply -target consul_acl_policy.everything
 echo cd ../vault

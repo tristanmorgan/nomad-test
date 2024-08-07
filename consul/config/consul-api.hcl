@@ -1,6 +1,5 @@
 services {
-  name  = "consul-api"
-  token = "ab1469ec-078c-42cf-bb7b-6ef2a52360ea"
+  name = "consul-api"
   tags = [
     "urlprefix-consul.service.consul/",
   ]
