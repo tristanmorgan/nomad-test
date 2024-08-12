@@ -40,8 +40,8 @@ job "autoscaler" {
       }
 
       vault {
-        policies = ["autoscaler"]
-        env      = false
+        role = "autoscaler"
+        env  = false
 
         change_mode   = "signal"
         change_signal = "SIGHUP"

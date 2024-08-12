@@ -1,4 +1,4 @@
-job "external" {
+job "consul-esm" {
   datacenters = ["system-internal"]
   type        = "system"
 
@@ -9,7 +9,7 @@ job "external" {
       }
     }
 
-    task "monitor" {
+    task "esm" {
       service {
         port = "admin"
         name = "esm-prom"
@@ -17,17 +17,8 @@ job "external" {
       }
 
       driver = "docker"
-
-      vault {
-        policies = ["consul-esm"]
-        env      = false
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
       template {
         data = <<-EOH
-        CONSUL_HTTP_TOKEN="{{with secret "consul/creds/consul-esm"}}{{.Data.token}}{{end}}"
         CONSUL_HTTP_ADDR="{{ env "attr.unique.network.ip-address"}}:8500"
         EOH
 

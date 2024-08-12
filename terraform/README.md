@@ -7,7 +7,6 @@
 |------|---------|
 | <a name="provider_consul"></a> [consul](#provider\_consul) | 2.21.0 |
 | <a name="provider_external"></a> [external](#provider\_external) | 2.3.3 |
-| <a name="provider_http"></a> [http](#provider\_http) | 3.4.4 |
 | <a name="provider_local"></a> [local](#provider\_local) | 2.5.1 |
 | <a name="provider_nomad"></a> [nomad](#provider\_nomad) | 2.3.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.6.2 |

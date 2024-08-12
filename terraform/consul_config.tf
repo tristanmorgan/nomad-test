@@ -66,27 +66,6 @@ resource "vault_token_auth_backend_role" "consul_ca" {
   token_no_default_policy = true
 }
 
-resource "consul_acl_token" "vault" {
-  description = "Token for Vault secrets engine."
-  policies    = ["global-management"]
-}
-
-data "consul_acl_token_secret_id" "vault" {
-  accessor_id = consul_acl_token.vault.id
-}
-
-resource "vault_consul_secret_backend" "consul" {
-  path        = "consul"
-  description = "Access Consul tokens"
-
-  address                   = "${data.external.local_info.result.ipaddress}:8500"
-  scheme                    = "http"
-  token                     = data.consul_acl_token_secret_id.vault.secret_id
-  default_lease_ttl_seconds = "3600"
-  max_lease_ttl_seconds     = "36000"
-  bootstrap                 = false
-}
-
 resource "consul_certificate_authority" "connect" {
   connect_provider = "vault"
 
@@ -111,12 +90,8 @@ resource "consul_certificate_authority" "connect" {
 resource "consul_acl_token" "agent" {
   description = "Consul Agent Token"
   local       = true
-  templated_policies {
-    template_name = "builtin/node"
-    template_variables {
-      name = "introversion"
-    }
-  }
+
+  policies = [consul_acl_policy.everything["agent.hcl"].name]
 }
 
 data "consul_acl_token_secret_id" "agent" {
@@ -124,7 +99,11 @@ data "consul_acl_token_secret_id" "agent" {
 }
 
 resource "terraform_data" "consul_agent" {
-  input = data.consul_acl_token_secret_id.agent.secret_id
+  input = consul_acl_token.agent.accessor_id
+
+  triggers_replace = [
+    data.consul_acl_token_secret_id.agent.secret_id
+  ]
 
   provisioner "local-exec" {
     command = "consul acl set-agent-token agent ${data.consul_acl_token_secret_id.agent.secret_id}"
@@ -144,7 +123,11 @@ data "consul_acl_token_secret_id" "dns" {
 }
 
 resource "terraform_data" "consul_dns" {
-  input = data.consul_acl_token_secret_id.dns.secret_id
+  input = consul_acl_token.dns.accessor_id
+
+  triggers_replace = [
+    data.consul_acl_token_secret_id.dns.secret_id
+  ]
 
   provisioner "local-exec" {
     command = "consul acl set-agent-token dns ${data.consul_acl_token_secret_id.dns.secret_id}"
@@ -163,26 +146,18 @@ resource "consul_acl_policy" "everything" {
   rules       = file("cpol/${each.value}")
 }
 
-output "consul_policies" {
-  description = "List of Consul Policies loaded."
-  value       = values(consul_acl_policy.everything)[*].name
-}
-
-resource "vault_consul_secret_backend_role" "everything" {
-  for_each = consul_acl_policy.everything
-  name     = each.value["name"]
-  backend  = vault_consul_secret_backend.consul.path
+resource "consul_acl_role" "everything" {
+  for_each = fileset("${path.module}/cpol", "*.hcl")
+  name     = trimsuffix(each.value, ".hcl")
 
   policies = [
-    each.value["name"]
+    consul_acl_policy.everything[each.value].id
   ]
 }
 
-resource "vault_consul_secret_backend_role" "management" {
-  name    = "management"
-  backend = vault_consul_secret_backend.consul.path
-
-  policies = ["global-management"]
+output "consul_policies" {
+  description = "List of Consul Policies loaded."
+  value       = values(consul_acl_policy.everything)[*].name
 }
 
 resource "consul_config_entry" "uuid" {

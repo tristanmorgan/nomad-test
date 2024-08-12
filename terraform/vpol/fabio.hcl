@@ -14,7 +14,3 @@ path "auth/token/renew-self" {
 path "sys/leases/renew" {
   capabilities = ["update"]
 }
-
-path "consul/creds/fabio" {
-  capabilities = ["read"]
-}

@@ -17,22 +17,14 @@ job "cn-demo" {
         interval = "10s"
         timeout  = "2s"
       }
-      task = "generate"
+      task = "uuid"
 
       connect {
         native = true
       }
     }
 
-    vault {
-      policies = ["uuid"]
-      env      = false
-
-      change_mode   = "signal"
-      change_signal = "SIGHUP"
-    }
-
-    task "generate" {
+    task "uuid" {
       driver = "docker"
 
       config {
@@ -41,8 +33,7 @@ job "cn-demo" {
       }
       template {
         data = <<-EOH
-        CONSUL_HTTP_TOKEN="{{with secret "consul/creds/uuid"}}{{.Data.token}}{{end}}"
-        CONSUL_HTTP_ADDR="{{ env "attr.unique.network.ip-address"}}:8500"
+        {{ range service "consul-api" }}CONSUL_HTTP_ADDR="{{ .Address }}:{{ .Port }}"{{ end }}
         EOH
 
         destination = "${NOMAD_SECRETS_DIR}/uuid.env"
@@ -74,22 +65,14 @@ job "cn-demo" {
         interval = "10s"
         timeout  = "2s"
       }
-      task = "frontend"
+      task = "uuid"
 
       connect {
         native = true
       }
     }
 
-    vault {
-      policies = ["uuid"]
-      env      = false
-
-      change_mode   = "signal"
-      change_signal = "SIGHUP"
-    }
-
-    task "frontend" {
+    task "uuid" {
       driver = "docker"
 
       config {
@@ -98,8 +81,7 @@ job "cn-demo" {
       }
       template {
         data = <<-EOH
-        CONSUL_HTTP_TOKEN="{{with secret "consul/creds/uuid"}}{{.Data.token}}{{end}}"
-        CONSUL_HTTP_ADDR="{{ env "attr.unique.network.ip-address"}}:8500"
+        {{ range service "consul-api" }}CONSUL_HTTP_ADDR="{{ .Address }}:{{ .Port }}"{{ end }}
         EOH
 
         destination = "${NOMAD_SECRETS_DIR}/uuid.env"

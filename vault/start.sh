@@ -1,7 +1,7 @@
 #!/bin/sh
 
 : > vault.log
-mkdir raft
+mkdir -p raft
 
 IP_ADDRESS=$(ipconfig getifaddr en0)
 

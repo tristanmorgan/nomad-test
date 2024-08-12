@@ -14,6 +14,15 @@ acl {
 
 consul {
   tags = ["urlprefix-nomad.service.consul/"]
+
+  service_identity {
+    aud = ["consul.io"]
+    ttl = "1h"
+  }
+  task_identity {
+    aud = ["consul.io"]
+    ttl = "1h"
+  }
 }
 
 client {
@@ -45,11 +54,13 @@ plugin "raw_exec" {
 }
 
 vault {
-  enabled          = true
-  tls_skip_verify  = true
-  create_from_role = "nomad-cluster"
+  enabled         = true
+  tls_skip_verify = true
 
-  allow_unauthenticated = true
+  default_identity {
+    aud = ["vault.io"]
+    ttl = "1h"
+  }
 }
 
 telemetry {

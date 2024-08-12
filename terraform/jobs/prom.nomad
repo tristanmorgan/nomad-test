@@ -1,6 +1,6 @@
-job "monitoring" {
+job "prom" {
   datacenters = ["system-internal"]
-  group "telemetry" {
+  group "prom" {
     count = 1
 
     network {
@@ -11,8 +11,8 @@ job "monitoring" {
 
     service {
       port = "prom"
-      name = "prometheus"
-      tags = ["urlprefix-prometheus.service.consul/", "prom-metrics"]
+      name = "prom"
+      tags = ["urlprefix-prom.service.consul/", "prom-metrics"]
       check {
         port     = "prom"
         type     = "http"
@@ -28,20 +28,13 @@ job "monitoring" {
       source    = "build-output"
     }
 
-    task "prometheus" {
+    task "prom" {
       driver = "docker"
 
       volume_mount {
         volume      = "build"
         destination = "/prometheus"
         read_only   = false
-      }
-
-      vault {
-        policies = ["prom"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
       }
 
       template {
@@ -57,7 +50,7 @@ job "monitoring" {
                 - "prometheus"
             consul_sd_configs:
               - server: {{ range service "consul" }}{{ .Address }}:8500{{ end }}
-                token: {{with secret "consul/creds/prom"}}{{.Data.token}}{{end}}
+                token: {{ env "CONSUL_HTTP_TOKEN" }}
                 tags:
                   - "prom-metrics"
             relabel_configs:
@@ -70,9 +63,8 @@ job "monitoring" {
                 action: drop
           - job_name: consul
             metrics_path: "/v1/agent/metrics"
-            {{with secret "consul/creds/prom"}}
             authorization:
-              credentials: "{{.Data.token}}"{{end}}
+              credentials: "{{ env "CONSUL_HTTP_TOKEN" }}"
             params:
               format:
                 - "prometheus"

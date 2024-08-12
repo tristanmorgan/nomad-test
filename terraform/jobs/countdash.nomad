@@ -1,9 +1,6 @@
 job "countdash" {
   datacenters = ["system-internal"]
 
-  update {
-    canary = 1
-  }
   group "api" {
     count = 1
     network {
@@ -25,24 +22,22 @@ job "countdash" {
       }
     }
 
-    task "count" {
+    task "counting" {
       driver = "docker"
+      identity {
+        name = "counting"
+        aud  = ["consul.io"]
+        ttl  = "1h"
 
+        file = false
+      }
       config {
         image = "tristanmorgan/counting:2021-10-21"
         ports = ["http"]
       }
-      vault {
-        policies = ["counting"]
-        env      = false
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
       template {
         data = <<-EOH
-        CONSUL_HTTP_TOKEN="{{with secret "consul/creds/counting"}}{{.Data.token}}{{end}}"
-        CONSUL_HTTP_ADDR="{{ env "attr.unique.network.ip-address"}}:8500"
+        {{ range service "consul-api" }}CONSUL_HTTP_ADDR="{{ .Address }}:{{ .Port }}"{{ end }}
         EOH
 
         destination = "${NOMAD_SECRETS_DIR}/counting.env"
@@ -76,18 +71,23 @@ job "countdash" {
 
     task "dashboard" {
       driver = "docker"
+      identity {
+        name = "dashboard"
+        aud  = ["consul.io"]
+        ttl  = "1h"
 
+        file = false
+      }
       config {
         image = "hashicorpnomad/counter-dashboard:v2"
         ports = ["http"]
       }
       template {
         data = <<-EOH
-        {{ range service "counting" }}
-        COUNTING_SERVICE_URL="http://{{ .Address }}:{{ .Port }}"{{ end }}
+        {{ range service "counting" }}COUNTING_SERVICE_URL="http://{{ .Address }}:{{ .Port }}"{{ end }}
         EOH
 
-        destination = "${NOMAD_SECRETS_DIR}/counting.env"
+        destination = "${NOMAD_SECRETS_DIR}/dashboard.env"
         env         = true
         change_mode = "restart"
       }

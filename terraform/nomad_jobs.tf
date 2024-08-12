@@ -53,23 +53,6 @@ resource "vault_nomad_secret_role" "management" {
   type = "management"
 }
 
-resource "vault_policy" "needed" {
-  for_each = fileset("${path.module}/vpol", "*.hcl")
-  name     = trimsuffix(each.value, ".hcl")
-
-  policy = file("vpol/${each.value}")
-
-  depends_on = [
-    vault_nomad_secret_role.needed,
-    vault_consul_secret_backend_role.everything,
-  ]
-}
-
-output "vault_policies" {
-  description = "List of Vault Policies loaded."
-  value       = values(vault_policy.needed)[*].name
-}
-
 variable "no_deploy" {
   description = "set to true to disable deployments"
   default     = false
@@ -87,9 +70,7 @@ resource "nomad_job" "everything" {
 
   depends_on = [
     vault_pki_secret_backend_role.consul,
-    vault_consul_secret_backend.consul,
     vault_nomad_secret_backend.nomad,
-    vault_token_auth_backend_role.nomad_cluster
   ]
 }
 
@@ -108,29 +89,4 @@ resource "consul_keys" "fabio_config" {
     path  = "fabio/noroute.html"
     value = file("${path.module}/noroute.html")
   }
-}
-
-resource "vault_token_auth_backend_role" "nomad_server" {
-  role_name               = "nomad-server"
-  allowed_policies        = [vault_policy.nomad_server.name]
-  orphan                  = true
-  token_period            = "7200"
-  renewable               = true
-  token_explicit_max_ttl  = "0"
-  token_no_default_policy = true
-}
-
-resource "vault_policy" "nomad_server" {
-  name   = "nomad-server"
-  policy = data.http.nomad_server_policy.response_body
-}
-
-resource "vault_token_auth_backend_role" "nomad_cluster" {
-  role_name               = "nomad-cluster"
-  allowed_policies        = values(vault_policy.needed)[*].name
-  orphan                  = true
-  token_period            = "3600"
-  renewable               = true
-  token_explicit_max_ttl  = "0"
-  token_no_default_policy = true
 }

@@ -2,7 +2,7 @@ job "fabio" {
   datacenters = ["system-internal"]
   type        = "system"
 
-  group "load" {
+  group "fabio" {
     network {
       mode = "host"
       port "https" {
@@ -14,7 +14,10 @@ job "fabio" {
       }
     }
 
-    task "balancer" {
+    task "fabio" {
+      vault {
+        role = "fabio"
+      }
       service {
         port = "admin"
         name = "fabio"
@@ -41,17 +44,10 @@ job "fabio" {
         ports = ["admin", "https", "prom"]
       }
 
-      vault {
-        policies = ["fabio"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
       template {
         data = <<-EOH
-        CONSUL_HTTP_TOKEN="{{with secret "consul/creds/fabio"}}{{.Data.token}}{{end}}"
         {{ range service "vault" }}VAULT_ADDR="http://{{ .Address }}:{{ .Port }}"{{ end }}
-        FABIO_registry_consul_addr="{{ env "attr.unique.network.ip-address" }}:8500"
+        {{ range service "consul-api" }}FABIO_registry_consul_addr="{{ .Address }}:{{ .Port }}"{{ end }}
         FABIO_metrics_target="prometheus"
         EOH
 

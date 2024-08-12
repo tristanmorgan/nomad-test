@@ -71,7 +71,6 @@ job "webapp" {
             within_bounds_trigger = 1
           }
         }
-
       }
     }
   }

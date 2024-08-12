@@ -37,10 +37,6 @@ EOF
   ]
 }
 
-data "http" "nomad_server_policy" {
-  url = "https://www.nomadproject.io/data/vault/nomad-server-policy.hcl"
-}
-
 data "consul_service" "nomad" {
   name = "nomad"
   tag  = "http"
