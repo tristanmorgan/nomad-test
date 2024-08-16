@@ -1,14 +1,12 @@
 consul/consul.out
-consul/consul.err
+consul/bootstrap.txt
 consul/data/
 nomad/bootstrap.txt
 nomad/nomad.out
-nomad/nomad.err
 nomad/data/
 vault/vault-init.txt
 vault/vault.log
 vault/vault.out
-vault/vault.err
 vault/raft/
 terraform/.terraform/
 terraform/.terraform.lock.hcl
