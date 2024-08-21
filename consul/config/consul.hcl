@@ -19,7 +19,6 @@ data_dir                   = "./data"
 datacenter                 = "system-internal"
 disable_host_node_id       = false
 disable_update_check       = true
-encrypt                    = "GkSMCC4pHEKGEiQ/eMN0k7c3tfMa4u/5fiwOFeS3Qcc="
 enable_local_script_checks = true
 leave_on_terminate         = true
 log_level                  = "INFO"
