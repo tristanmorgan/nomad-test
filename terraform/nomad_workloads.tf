@@ -33,6 +33,14 @@ resource "consul_acl_binding_rule" "nomad_task" {
   bind_name   = "$${value.nomad_task}"
 }
 
+resource "consul_acl_binding_rule" "terminating" {
+  auth_method = consul_acl_auth_method.nomad.name
+  description = "Binding rule for terminating gateway"
+  selector    = "value.nomad_service == terminating"
+  bind_type   = "role"
+  bind_name   = "terminating"
+}
+
 resource "vault_jwt_auth_backend" "nomad" {
   path        = "jwt-nomad"
   type        = "jwt"

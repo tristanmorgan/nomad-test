@@ -1,9 +1,9 @@
-node "introversion" {
+service_prefix "" {
   policy = "write"
 }
 node_prefix "" {
   policy = "read"
 }
-service_prefix "" {
+agent_prefix "" {
   policy = "read"
 }

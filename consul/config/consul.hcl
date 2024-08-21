@@ -57,7 +57,11 @@ ui_config {
   enabled          = true
   metrics_provider = "prometheus"
   metrics_proxy {
-    base_url = "https://prometheus.service.consul/"
+    base_url = "https://prom.service.consul/"
+    add_headers = {
+      name  = "Host"
+      value = "prom.service.consul"
+    }
   }
 }
 connect {

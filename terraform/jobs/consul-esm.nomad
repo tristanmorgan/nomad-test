@@ -55,7 +55,7 @@ job "consul-esm" {
           "--config-file=${NOMAD_TASK_DIR}/consul_esm.hcl"
         ]
         ports = ["admin"]
-        image = "hashicorp/consul-esm:0.7.1"
+        image = "hashicorp/consul-esm:0.7.2"
       }
     }
   }

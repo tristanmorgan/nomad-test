@@ -48,7 +48,7 @@ namespace :terraform do
       puts "Running #{action}"
       pid = Process.spawn("terraform #{action}")
       Process.wait pid
-      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
+      raise "Process Exited with Error. action: #{action}" if Process.last_status.exitstatus.positive?
     end
   end
 
@@ -58,7 +58,7 @@ namespace :terraform do
       puts "Running #{extra[:name]}"
       pid = Process.spawn(extra[:command])
       Process.wait pid
-      raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
+      raise "Process Exited with Error. action: #{extra[:name]}" if Process.last_status.exitstatus.positive?
     end
   end
 end
@@ -76,7 +76,7 @@ namespace :nomad do
 
     desc "Run Nomad format-check-#{target}"
     task "fmt-check-#{target}" do
-      puts "Running Hcledit fmt on #{target}"
+      puts "Running Nomad fmt -check on #{target}"
       pid = Process.spawn("nomad fmt -check jobs/#{target}.nomad")
       Process.wait pid
       raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?
@@ -84,7 +84,7 @@ namespace :nomad do
 
     desc "Run Nomad format-#{target}"
     task "fmt-#{target}" do
-      puts "Running Hcledit fmt on #{target}"
+      puts "Running Nomad fmt on #{target}"
       pid = Process.spawn("nomad fmt jobs/#{target}.nomad")
       Process.wait pid
       raise 'Process Exited with Error.' if Process.last_status.exitstatus.positive?

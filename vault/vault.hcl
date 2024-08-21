@@ -7,6 +7,7 @@ seal "awskms" {
 storage "raft" {
   path    = "raft/"
   node_id = "vault_1"
+  raft_wal = true
 }
 
 service_registration "consul" {
