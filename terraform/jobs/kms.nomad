@@ -58,6 +58,11 @@ job "kms" {
         KMS_REGION     = "ap-southeast-2"
         KMS_SEED_PATH  = "${NOMAD_TASK_DIR}/seed.yml"
       }
+      resources {
+        cpu        = 64
+        memory     = 32
+        memory_max = 64
+      }
     }
   }
 }

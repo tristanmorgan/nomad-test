@@ -123,8 +123,9 @@ job "autoscaler" {
       }
 
       resources {
-        cpu    = 128
-        memory = 64
+        cpu        = 128
+        memory     = 64
+        memory_max = 128
       }
     }
   }

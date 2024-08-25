@@ -5,6 +5,8 @@ unset CONSUL_HTTP_ADDR
 rm -rf data/*
 consul agent -server -config-dir=config/ -bootstrap-expect=1 -encrypt="$(consul keygen)" > consul.out 2>&1 &
 
+sleep 1
+
 while ! fgrep -q 'agent.server: cluster leadership acquired' consul.out
 do
   sleep 1

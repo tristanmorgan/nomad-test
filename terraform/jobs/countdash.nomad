@@ -47,6 +47,11 @@ job "countdash" {
       env {
         PORT = "${NOMAD_PORT_http}"
       }
+      resources {
+        cpu        = 64
+        memory     = 32
+        memory_max = 64
+      }
     }
   }
 
@@ -93,6 +98,11 @@ job "countdash" {
       }
       env {
         PORT = "${NOMAD_PORT_http}"
+      }
+      resources {
+        cpu        = 64
+        memory     = 32
+        memory_max = 64
       }
     }
     scaling {

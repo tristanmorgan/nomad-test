@@ -57,6 +57,11 @@ job "consul-esm" {
         ports = ["admin"]
         image = "hashicorp/consul-esm:0.7.2"
       }
+      resources {
+        cpu        = 64
+        memory     = 32
+        memory_max = 64
+      }
     }
   }
 }

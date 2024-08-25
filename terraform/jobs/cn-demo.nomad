@@ -44,6 +44,11 @@ job "cn-demo" {
         BIND = "0.0.0.0"
         PORT = "${NOMAD_PORT_api}"
       }
+      resources {
+        cpu        = 64
+        memory     = 32
+        memory_max = 64
+      }
     }
   }
 
@@ -92,6 +97,11 @@ job "cn-demo" {
         UPSTREAM = "uuid-api"
         BIND     = "0.0.0.0"
         PORT     = "${NOMAD_PORT_http}"
+      }
+      resources {
+        cpu        = 64
+        memory     = 32
+        memory_max = 64
       }
     }
     scaling {
