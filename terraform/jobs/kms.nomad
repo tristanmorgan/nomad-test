@@ -49,7 +49,7 @@ job "kms" {
       }
 
       config {
-        image = "nsmithuk/local-kms:3.11.4"
+        image = "nsmithuk/local-kms:3.11.7"
         ports = ["http"]
       }
       env {

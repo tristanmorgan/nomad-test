@@ -70,7 +70,7 @@ job "countdash" {
     task "dashboard" {
       driver = "docker"
       config {
-        image = "hashicorpnomad/counter-dashboard:v2"
+        image = "hashicorpnomad/counter-dashboard:v3"
         ports = ["http"]
       }
       template {
@@ -86,9 +86,9 @@ job "countdash" {
         PORT = "${NOMAD_PORT_http}"
       }
       resources {
-        cpu        = 64
-        memory     = 32
-        memory_max = 64
+        cpu        = 128
+        memory     = 64
+        memory_max = 128
       }
     }
     scaling {

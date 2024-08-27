@@ -40,7 +40,7 @@ job "fabio" {
       driver = "docker"
 
       config {
-        image = "fabiolb/fabio:1.6.3"
+        image = "tristanmorgan/fabio:latest"
         ports = ["admin", "https", "prom"]
       }
 

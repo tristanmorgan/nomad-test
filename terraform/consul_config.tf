@@ -91,7 +91,11 @@ resource "consul_acl_token" "agent" {
   description = "Consul Agent Token"
   local       = true
 
-  policies = [consul_acl_policy.everything["agent.hcl"].name]
+  node_identities {
+    datacenter = data.consul_agent_config.self.datacenter
+    node_name  = data.consul_agent_config.self.node_name
+  }
+  # policies = [consul_acl_policy.everything["agent.hcl"].name]
 }
 
 data "consul_acl_token_secret_id" "agent" {
