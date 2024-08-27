@@ -1,7 +1,7 @@
 job "countdash" {
   datacenters = ["system-internal"]
 
-  group "api" {
+  group "counting" {
     count = 1
     network {
       mode = "host"
@@ -24,13 +24,6 @@ job "countdash" {
 
     task "counting" {
       driver = "docker"
-      identity {
-        name = "counting"
-        aud  = ["consul.io"]
-        ttl  = "1h"
-
-        file = false
-      }
       config {
         image = "tristanmorgan/counting:2021-10-21"
         ports = ["http"]
@@ -55,7 +48,7 @@ job "countdash" {
     }
   }
 
-  group "web" {
+  group "dashboard" {
     network {
       mode = "host"
       port "http" {}
@@ -76,13 +69,6 @@ job "countdash" {
 
     task "dashboard" {
       driver = "docker"
-      identity {
-        name = "dashboard"
-        aud  = ["consul.io"]
-        ttl  = "1h"
-
-        file = false
-      }
       config {
         image = "hashicorpnomad/counter-dashboard:v2"
         ports = ["http"]

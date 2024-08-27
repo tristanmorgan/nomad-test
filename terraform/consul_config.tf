@@ -110,12 +110,18 @@ resource "terraform_data" "consul_agent" {
   }
 }
 
-resource "consul_acl_token" "dns" {
-  description = "Consul DNS Token"
-  local       = true
+resource "consul_acl_role" "dns" {
+  name = "dns"
+
   templated_policies {
     template_name = "builtin/dns"
   }
+}
+
+resource "consul_acl_token" "dns" {
+  description = "Consul DNS Token"
+  local       = true
+  roles       = [consul_acl_role.dns.name]
 }
 
 data "consul_acl_token_secret_id" "dns" {

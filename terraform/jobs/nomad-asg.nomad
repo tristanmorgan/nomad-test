@@ -1,6 +1,6 @@
 job "autoscaler" {
   meta {
-    image_tag = "0.3.7"
+    image_tag = "0.4.5"
   }
 
   datacenters = ["system-internal"]
