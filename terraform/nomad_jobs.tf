@@ -91,3 +91,11 @@ resource "consul_keys" "fabio_config" {
     value = file("${path.module}/noroute.html")
   }
 }
+
+resource "nomad_variable" "secret" {
+  path = "nomad/jobs/minio/server"
+  items = {
+    root_user     = data.environment_sensitive_variable.access_key.value
+    root_password = data.environment_sensitive_variable.secret_key.value
+  }
+}

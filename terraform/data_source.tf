@@ -42,3 +42,23 @@ data "consul_service" "nomad" {
   tag  = "http"
 }
 
+data "environment_sensitive_variable" "access_key" {
+  name = "AWS_ACCESS_KEY_ID"
+
+  lifecycle {
+    postcondition {
+      condition     = startswith(self.value, "AKIA")
+      error_message = "access key id should be valid."
+    }
+  }
+}
+
+data "environment_sensitive_variable" "secret_key" {
+  name = "AWS_SECRET_ACCESS_KEY"
+  lifecycle {
+    postcondition {
+      condition     = length(self.value) == 40
+      error_message = "secret access key should be valid."
+    }
+  }
+}
