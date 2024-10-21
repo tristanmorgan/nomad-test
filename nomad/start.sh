@@ -1,5 +1,6 @@
 #!/bin/sh
 
+umask 022
 rm -rf data/*
 mkdir data/plugins
 

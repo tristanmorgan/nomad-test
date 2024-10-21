@@ -30,7 +30,8 @@ job "countdash" {
       }
       template {
         data = <<-EOH
-        {{ range service "consul-api" }}CONSUL_HTTP_ADDR="{{ .Address }}:{{ .Port }}"{{ end }}
+        {{ range service "consul-api" }}CONSUL_HTTP_ADDR="{{ .Address }}:{{ .Port }}"
+        {{ end }}
         EOH
 
         destination = "${NOMAD_SECRETS_DIR}/counting.env"
@@ -75,7 +76,8 @@ job "countdash" {
       }
       template {
         data = <<-EOH
-        {{ range service "counting" }}COUNTING_SERVICE_URL="http://{{ .Address }}:{{ .Port }}"{{ end }}
+        {{ range service "counting" }}COUNTING_SERVICE_URL="http://{{ .Address }}:{{ .Port }}"
+        {{ end }}
         EOH
 
         destination = "${NOMAD_SECRETS_DIR}/dashboard.env"

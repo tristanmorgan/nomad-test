@@ -25,8 +25,7 @@ then
 fi
 ROUTER_IP=$(networksetup -getinfo 'Wi-Fi' | awk '/^Router/ {print $NF}')
 
-echo "{\"ipaddress\":\"$IP_ADDRESS\","
-echo " \"router\":\"$ROUTER_IP\","
+echo "{\"router\":\"$ROUTER_IP\","
 echo " \"currentuser\":\"$USER\","
 echo " \"vaulttoken\":\"$CA_TOKEN\"}"
 EOF
@@ -40,6 +39,11 @@ EOF
 data "consul_service" "nomad" {
   name = "nomad"
   tag  = "http"
+}
+
+data "consul_service" "vault" {
+  name = "vault"
+  tag  = "active"
 }
 
 data "environment_sensitive_variable" "access_key" {

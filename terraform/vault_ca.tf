@@ -104,11 +104,6 @@ resource "vault_pki_secret_backend_intermediate_set_signed" "intca" {
   certificate = vault_pki_secret_backend_root_sign_intermediate.intca.certificate_bundle
 }
 
-resource "vault_pki_secret_backend_issuer" "default" {
-  backend    = vault_mount.intca.path
-  issuer_ref = vault_pki_secret_backend_intermediate_set_signed.intca.imported_issuers[0]
-}
-
 resource "vault_pki_secret_backend_role" "consul" {
   backend          = vault_mount.intca.path
   name             = "consul"

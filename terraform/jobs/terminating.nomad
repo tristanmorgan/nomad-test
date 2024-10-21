@@ -28,7 +28,7 @@ job "terminating" {
               name = "counting"
             }
             service {
-              name = "prometheus"
+              name = "prom"
             }
             service {
               name = "nomad-client"

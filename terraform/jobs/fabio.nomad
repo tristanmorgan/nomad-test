@@ -46,8 +46,10 @@ job "fabio" {
 
       template {
         data = <<-EOH
-        {{ range service "vault" }}VAULT_ADDR="http://{{ .Address }}:{{ .Port }}"{{ end }}
-        {{ range service "consul-api" }}FABIO_registry_consul_addr="{{ .Address }}:{{ .Port }}"{{ end }}
+        {{ range service "vault" }}VAULT_ADDR="http://{{ .Address }}:{{ .Port }}"
+        {{ end }}
+        {{ range service "consul-api" }}FABIO_registry_consul_addr="{{ .Address }}:{{ .Port }}"
+        {{ end }}
         FABIO_metrics_target="prometheus"
         EOH
 
