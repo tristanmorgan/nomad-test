@@ -47,6 +47,7 @@ resource "vault_identity_oidc_client" "nomad" {
   redirect_uris = [
     "http://localhost:4649/oidc/callback",
     "http://${data.consul_service.nomad.service[0].address}:${data.consul_service.nomad.service[0].port}/ui/settings/tokens",
+    "https://nomad.service.consul/ui/settings/tokens",
   ]
   assignments = [
     vault_identity_oidc_assignment.default.name
