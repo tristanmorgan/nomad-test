@@ -1,6 +1,6 @@
 namespace "*" {
   policy       = "read"
-  capabilities = ["read-job", "scale-job"]
+  capabilities = ["read-job", "scale-job", "submit-recommendation"]
 
   variables {
     path "nomad/jobs/autoscaler/nomad*" {
@@ -10,5 +10,9 @@ namespace "*" {
 }
 
 node {
+  policy = "read"
+}
+
+operator {
   policy = "read"
 }

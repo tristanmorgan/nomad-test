@@ -1,6 +1,6 @@
 job "autoscaler" {
   meta {
-    image_tag = "0.4.6"
+    image_tag = "0.4.6-ent"
   }
 
   datacenters = ["system-internal"]
@@ -48,7 +48,7 @@ job "autoscaler" {
         change_signal = "SIGHUP"
       }
       config {
-        image   = "hashicorp/nomad-autoscaler:${NOMAD_META_image_tag}"
+        image   = "hashicorp/nomad-autoscaler-enterprise:${NOMAD_META_image_tag}"
         command = "nomad-autoscaler"
         args = [
           "agent",
@@ -66,6 +66,7 @@ job "autoscaler" {
         }
 
         nomad {
+          namespace = "*"
           address = "http://{{ env "attr.unique.network.ip-address" }}:4646"
           token   = "{{with secret "nomad/creds/autoscaler"}}{{.Data.secret_id}}{{end}}"
         }
@@ -73,6 +74,14 @@ job "autoscaler" {
         high_availability {
           enabled   = true
           lock_path = "nomad/jobs/{{ env "NOMAD_JOB_NAME"}}/{{ env "NOMAD_GROUP_NAME"}}"
+        }
+
+        dynamic_application_sizing {
+          evaluate_after            = "1h"
+        }
+
+        apm "nomad-apm" {
+          driver = "nomad-apm"
         }
 
         apm "prometheus" {
@@ -112,6 +121,22 @@ job "autoscaler" {
         cpu        = 128
         memory     = 64
         memory_max = 128
+      }
+      scaling "mem" {
+        policy {
+          check "max" {
+            strategy "app-sizing-max" {}
+          }
+        }
+      }
+      scaling "cpu" {
+        policy {
+          check "95pct" {
+            strategy "app-sizing-percentile" {
+              percentile = "95"
+            }
+          }
+        }
       }
     }
   }

@@ -63,6 +63,22 @@ job "consul-esm" {
         memory     = 32
         memory_max = 64
       }
+      scaling "mem" {
+        policy {
+          check "max" {
+            strategy "app-sizing-max" {}
+          }
+        }
+      }
+      scaling "cpu" {
+        policy {
+          check "95pct" {
+            strategy "app-sizing-percentile" {
+              percentile = "95"
+            }
+          }
+        }
+      }
     }
   }
 }
