@@ -117,6 +117,8 @@ resource "terraform_data" "consul_agent" {
 resource "consul_acl_role" "dns" {
   name = "dns"
 
+  description = "Consul DNS Role"
+
   templated_policies {
     template_name = "builtin/dns"
   }
@@ -152,13 +154,15 @@ resource "consul_acl_token_policy_attachment" "anonymous" {
 resource "consul_acl_policy" "everything" {
   for_each    = fileset("${path.module}/cpol", "*.hcl")
   name        = trimsuffix(each.value, ".hcl")
+  description = "Task Policy for ${trimsuffix(each.value, ".hcl")}"
   datacenters = [data.consul_agent_config.self.datacenter]
   rules       = file("cpol/${each.value}")
 }
 
 resource "consul_acl_role" "everything" {
-  for_each = fileset("${path.module}/cpol", "*.hcl")
-  name     = trimsuffix(each.value, ".hcl")
+  for_each    = fileset("${path.module}/cpol", "*.hcl")
+  name        = trimsuffix(each.value, ".hcl")
+  description = "Task Role for ${trimsuffix(each.value, ".hcl")}"
 
   policies = [
     consul_acl_policy.everything[each.value].id
