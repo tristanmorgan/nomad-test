@@ -71,6 +71,22 @@ job "fabio" {
         FABIO_ui_routingtable_source_linkenabled = "true"
         FABIO_ui_routingtable_source_scheme      = "https"
       }
+      scaling "mem" {
+        policy {
+          check "max" {
+            strategy "app-sizing-max" {}
+          }
+        }
+      }
+      scaling "cpu" {
+        policy {
+          check "95pct" {
+            strategy "app-sizing-percentile" {
+              percentile = "95"
+            }
+          }
+        }
+      }
     }
   }
 }

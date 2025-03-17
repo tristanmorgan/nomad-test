@@ -94,6 +94,29 @@ job "countdash" {
         memory     = 64
         memory_max = 128
       }
+      scaling "mem" {
+        policy {
+          cooldown            = "1m"
+          evaluation_interval = "1m"
+
+          check "max" {
+            strategy "app-sizing-max" {}
+          }
+        }
+      }
+      scaling "cpu" {
+        policy {
+          cooldown            = "1m"
+          evaluation_interval = "1m"
+
+          check "95pct" {
+            strategy "app-sizing-percentile" {
+              percentile = "95"
+            }
+          }
+        }
+      }
+
     }
     scaling {
       enabled = true
