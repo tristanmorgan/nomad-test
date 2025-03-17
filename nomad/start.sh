@@ -12,7 +12,7 @@ unset VAULT_TOKEN
 
 : > nomad.out
 
-nomad agent -config=nomad.hcl -data-dir=${PWD}/data -encrypt=$(nomad operator gossip keyring generate) -consul-address=$CONSUL_HTTP_ADDR -vault-address=$VAULT_ADDR -bootstrap-expect=1 > nomad.out 2>&1 &
+ent-nomad agent -config=nomad.hcl -data-dir=${PWD}/data -encrypt=$(nomad operator gossip keyring generate) -consul-address=$CONSUL_HTTP_ADDR -vault-address=$VAULT_ADDR -bootstrap-expect=1 > nomad.out 2>&1 &
 
 while ! fgrep -q 'client: node registration complete' nomad.out
 do

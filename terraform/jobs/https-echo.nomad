@@ -32,6 +32,22 @@ job "https" {
         ]
         ports = ["http"]
       }
+      scaling "cpu" {
+        policy {
+          check "p95" {
+            strategy "app-sizing-percentile" {
+              percentile = "95"
+            }
+          }
+        }
+      }
+      scaling "mem" {
+        policy {
+          check "max" {
+            strategy "app-sizing-max" {}
+          }
+        }
+      }
     }
   }
 }
