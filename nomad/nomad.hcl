@@ -1,4 +1,4 @@
-name                 = "introversion"
+name                 = "hashicarp"
 datacenter           = "system-internal"
 region               = "global"
 disable_update_check = true
