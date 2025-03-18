@@ -77,7 +77,7 @@ job "autoscaler" {
         }
 
         dynamic_application_sizing {
-          evaluate_after            = "1h"
+          evaluate_after            = "30m"
         }
 
         apm "nomad-apm" {

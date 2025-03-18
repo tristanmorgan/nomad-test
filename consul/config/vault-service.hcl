@@ -6,7 +6,7 @@ service {
   checks = [
     {
       id            = "upstream"
-      alias_service = "vault-service:10.10.10.138:8200"
+      alias_service = "vault-service:10.10.10.200:8200"
     },
     {
       id       = "service"
