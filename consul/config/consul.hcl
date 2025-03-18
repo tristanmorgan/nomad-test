@@ -9,8 +9,12 @@ acl {
 addresses {
   dns      = "127.0.0.1 {{GetPrivateIP}}"
   http     = "127.0.0.1 {{GetPrivateIP}}"
+  https    = "127.0.0.1 {{GetPrivateIP}}"
   grpc     = "127.0.0.1 {{GetPrivateIP}}"
   grpc_tls = "127.0.0.1 {{GetPrivateIP}}"
+}
+auto_encrypt {
+  allow_tls = true
 }
 auto_reload_config         = true
 primary_datacenter         = "system-internal"
@@ -22,7 +26,7 @@ disable_update_check       = true
 enable_local_script_checks = true
 leave_on_terminate         = true
 log_level                  = "INFO"
-node_name                  = "introversion"
+node_name                  = "hashicarp"
 node_meta {
   external-source = "consul"
 }
@@ -31,7 +35,7 @@ peering {
 }
 ports = {
   http     = 8500
-  https    = -1
+  https    = 8501
   grpc     = 8502
   grpc_tls = 8503
   dns      = 8600
