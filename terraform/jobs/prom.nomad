@@ -97,7 +97,7 @@ job "prom" {
       }
 
       config {
-        image = "prom/prometheus:v3.0.0-beta.1"
+        image = "prom/prometheus:v3.2.1"
         args = [
           "--storage.tsdb.path=/prometheus/promdata",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",
