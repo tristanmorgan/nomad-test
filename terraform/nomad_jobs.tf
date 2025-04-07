@@ -92,10 +92,18 @@ resource "consul_keys" "fabio_config" {
   }
 }
 
-resource "nomad_variable" "secret" {
+resource "nomad_variable" "minio" {
   path = "nomad/jobs/minio/server"
   items = {
     root_user     = data.environment_sensitive_variable.access_key.value
     root_password = data.environment_sensitive_variable.secret_key.value
+  }
+}
+
+resource "nomad_variable" "snapthot" {
+  path = "nomad/jobs/snapshot/nomad/snapshot"
+  items = {
+    access_key = data.environment_sensitive_variable.access_key.value
+    secret_key = data.environment_sensitive_variable.secret_key.value
   }
 }
