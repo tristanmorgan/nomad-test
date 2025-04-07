@@ -80,12 +80,13 @@ resource "vault_identity_oidc_provider" "default" {
   ]
 }
 
-resource "nomad_acl_role" "engineering" {
-  name        = "engineering"
-  description = "An ACL Role for cluster developers"
+resource "nomad_acl_role" "needed" {
+  for_each    = nomad_acl_policy.needed
+  name        = each.value["name"]
+  description = "An ACL Role for ${each.value["name"]}"
 
   policy {
-    name = nomad_acl_policy.needed["engineering.hcl"].name
+    name = each.value["name"]
   }
 }
 
@@ -104,16 +105,20 @@ resource "nomad_acl_auth_method" "vault" {
     oidc_scopes           = [vault_identity_oidc_scope.groups.name]
     bound_audiences       = [vault_identity_oidc_client.nomad.client_id]
     allowed_redirect_uris = vault_identity_oidc_client.nomad.redirect_uris
+    claim_mappings = {
+      "preferred_username" = "username",
+    }
     list_claim_mappings = {
       "groups" : "roles"
     }
   }
 }
 
-resource "nomad_acl_binding_rule" "engineering" {
-  description = "engineering rule"
+resource "nomad_acl_binding_rule" "needed" {
+  for_each    = nomad_acl_policy.needed
+  description = "${each.value["name"]} binding rule"
   auth_method = nomad_acl_auth_method.vault.name
-  selector    = "engineering in list.roles"
+  selector    = "${each.value["name"]} in list.roles"
   bind_type   = "role"
-  bind_name   = vault_identity_group.engineering.name
+  bind_name   = each.value["name"]
 }
