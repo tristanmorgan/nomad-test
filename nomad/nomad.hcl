@@ -25,6 +25,16 @@ keyring "awskms" {
   endpoint   = "http://kms.service.home.consul"
 }
 
+audit {
+  enabled = true
+  sink "audit" {
+    type               = "file"
+    delivery_guarantee = "enforced"
+    format             = "json"
+    path               = "./audit.log"
+  }
+}
+
 consul {
   tags = ["urlprefix-nomad.service.consul/ proto=tcp"]
 
