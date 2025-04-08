@@ -12,6 +12,16 @@ acl {
   enabled = true
 }
 
+audit {
+  enabled = true
+  sink "audit" {
+    type               = "file"
+    delivery_guarantee = "enforced"
+    format             = "json"
+    path               = "./audit.log"
+  }
+}
+
 consul {
   tags = ["urlprefix-nomad.service.consul/"]
 
@@ -36,9 +46,6 @@ client {
     node_type = "server"
   }
   # cpu_total_compute = 10404
-  options = {
-    "fingerprint.denylist" = "env_aws,env_gce,env_azure"
-  }
 }
 
 server {
