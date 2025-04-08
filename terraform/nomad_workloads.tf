@@ -42,7 +42,7 @@ resource "consul_acl_binding_rule" "terminating" {
 }
 
 resource "vault_jwt_auth_backend" "nomad" {
-  path        = "jwt-nomad"
+  path        = "dev-jwt-nomad"
   type        = "jwt"
   description = "Authenticate Nomad jobs using JWT"
 

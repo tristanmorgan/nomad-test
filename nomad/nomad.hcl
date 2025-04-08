@@ -61,8 +61,9 @@ plugin "raw_exec" {
 }
 
 vault {
-  enabled         = true
-  tls_skip_verify = true
+  enabled               = true
+  tls_skip_verify       = true
+  jwt_auth_backend_path = "dev-jwt-nomad"
 
   default_identity {
     aud = ["vault.io"]
