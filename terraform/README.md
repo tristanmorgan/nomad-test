@@ -45,6 +45,8 @@
 | [nomad_acl_role.needed](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_role) | resource |
 | [nomad_acl_token.vault](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_token) | resource |
 | [nomad_job.everything](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/job) | resource |
+| [nomad_namespace.app](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/namespace) | resource |
+| [nomad_quota_specification.app_team](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/quota_specification) | resource |
 | [nomad_scheduler_config.config](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/scheduler_config) | resource |
 | [nomad_variable.secret](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/variable) | resource |
 | [random_password.password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
