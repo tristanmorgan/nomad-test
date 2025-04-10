@@ -1,6 +1,6 @@
 job "snapshot" {
   meta {
-    image_tag = "1.9-ent"
+    image_tag = "1.10-ent"
   }
 
   datacenters = ["system-internal"]
@@ -8,6 +8,7 @@ job "snapshot" {
 
   group "nomad" {
     task "snapshot" {
+      consul {}
       driver = "docker"
 
       identity {
