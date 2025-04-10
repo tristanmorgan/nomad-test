@@ -1,3 +1,0 @@
-service "kms" {
-  policy = "read"
-}

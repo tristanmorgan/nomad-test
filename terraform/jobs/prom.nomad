@@ -29,6 +29,7 @@ job "prom" {
     }
 
     task "prom" {
+      consul {}
       driver = "docker"
 
       volume_mount {

@@ -15,6 +15,7 @@ job "fabio" {
     }
 
     task "fabio" {
+      consul {}
       vault {
         role = "fabio"
       }

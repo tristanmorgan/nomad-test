@@ -17,8 +17,6 @@ job "cn-demo" {
         interval = "10s"
         timeout  = "2s"
       }
-      task = "uuid"
-
       connect {
         native = true
       }
@@ -26,6 +24,7 @@ job "cn-demo" {
 
     task "uuid" {
       driver = "docker"
+      consul {}
 
       config {
         image = "hashicorpnomad/uuid-api:v5"
@@ -70,8 +69,6 @@ job "cn-demo" {
         interval = "10s"
         timeout  = "2s"
       }
-      task = "uuid"
-
       connect {
         native = true
       }
@@ -79,6 +76,7 @@ job "cn-demo" {
 
     task "uuid" {
       driver = "docker"
+      consul {}
 
       config {
         image = "hashicorpnomad/uuid-fe:v5"

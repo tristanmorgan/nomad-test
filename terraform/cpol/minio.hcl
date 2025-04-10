@@ -1,3 +1,0 @@
-service "minio" {
-  policy = "read"
-}

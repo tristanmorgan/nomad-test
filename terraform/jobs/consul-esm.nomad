@@ -10,6 +10,7 @@ job "consul-esm" {
     }
 
     task "esm" {
+      consul {}
       service {
         port = "admin"
         name = "esm-prom"

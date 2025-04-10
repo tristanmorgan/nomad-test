@@ -33,6 +33,7 @@ job "autoscaler" {
     }
 
     task "autoscaler" {
+      consul {}
       driver = "docker"
 
       identity {

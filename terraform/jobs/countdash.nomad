@@ -23,6 +23,7 @@ job "countdash" {
     }
 
     task "counting" {
+      consul {}
       driver = "docker"
       config {
         image = "tristanmorgan/counting:2021-10-21"
@@ -69,6 +70,7 @@ job "countdash" {
     }
 
     task "dashboard" {
+      consul {}
       driver = "docker"
       config {
         image = "hashicorpnomad/counter-dashboard:v3"
