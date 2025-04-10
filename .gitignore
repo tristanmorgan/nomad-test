@@ -3,6 +3,7 @@ consul/bootstrap.txt
 consul/data/
 nomad/bootstrap.txt
 nomad/nomad.out
+nomad/audit.log
 nomad/data/
 vault/vault-init.txt
 vault/vault.log
