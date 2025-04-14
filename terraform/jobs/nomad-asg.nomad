@@ -77,7 +77,7 @@ job "autoscaler" {
         apm "prometheus" {
           driver = "prometheus"
           config = {
-            address = "http://{{ range service "prometheus" }}{{ .Address }}:{{ .Port }}{{ end }}"
+            address = "http://{{ range service "prom" }}{{ .Address }}:{{ .Port }}{{ end }}"
           }
         }
 

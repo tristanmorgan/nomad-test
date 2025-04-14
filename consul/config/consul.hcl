@@ -9,6 +9,7 @@ acl {
 addresses {
   dns      = "127.0.0.1 {{GetPrivateIP}}"
   http     = "127.0.0.1 {{GetPrivateIP}}"
+  https    = "127.0.0.1 {{GetPrivateIP}}"
   grpc     = "127.0.0.1 {{GetPrivateIP}}"
   grpc_tls = "127.0.0.1 {{GetPrivateIP}}"
 }
@@ -31,7 +32,7 @@ peering {
 }
 ports = {
   http     = 8500
-  https    = -1
+  https    = 8501
   grpc     = 8502
   grpc_tls = 8503
   dns      = 8600
