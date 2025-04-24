@@ -46,6 +46,10 @@ data "consul_service" "vault" {
   tag  = "active"
 }
 
+data "consul_service" "consul" {
+  name = "consul-api"
+}
+
 data "environment_sensitive_variable" "access_key" {
   name = "AWS_ACCESS_KEY_ID"
 
