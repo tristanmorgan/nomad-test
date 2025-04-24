@@ -1,3 +1,7 @@
+namespace "*" {
+  policy = "write"
+}
+
 node {
   policy = "write"
 }
