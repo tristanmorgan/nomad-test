@@ -1,6 +1,6 @@
 job "autoscaler" {
   meta {
-    image_tag = "0.4.5"
+    image_tag = "0.4.6"
   }
 
   datacenters = ["system-internal"]
@@ -70,8 +70,9 @@ job "autoscaler" {
           token   = "{{with secret "nomad/creds/autoscaler"}}{{.Data.secret_id}}{{end}}"
         }
 
-        apm "nomad-apm" {
-          driver = "nomad-apm"
+        high_availability {
+          enabled   = true
+          lock_path = "nomad/jobs/{{ env "NOMAD_JOB_NAME"}}/{{ env "NOMAD_GROUP_NAME"}}"
         }
 
         apm "prometheus" {
@@ -94,22 +95,6 @@ job "autoscaler" {
             cluster    = 2
             horizontal = 2
           }
-        }
-
-        strategy "fixed-value" {
-          driver = "fixed-value"
-        }
-
-        strategy "pass-through" {
-          driver = "pass-through"
-        }
-
-        strategy "target-value" {
-          driver = "target-value"
-        }
-
-        strategy "threshold" {
-          driver = "threshold"
         }
 
         telemetry {
