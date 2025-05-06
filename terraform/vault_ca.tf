@@ -25,8 +25,8 @@ resource "vault_mount" "rootca" {
 
 resource "vault_pki_secret_backend_config_urls" "rootca" {
   backend                 = vault_mount.rootca.path
-  issuing_certificates    = ["http://vault.service.consul:8200/v1/rootca/ca"]
-  crl_distribution_points = ["http://vault.service.consul:8200/v1/rootca/crl"]
+  issuing_certificates    = ["https://vault.service.consul:8200/v1/rootca/ca"]
+  crl_distribution_points = ["https://vault.service.consul:8200/v1/rootca/crl"]
 }
 
 resource "vault_pki_secret_backend_root_cert" "rootca" {
@@ -61,8 +61,8 @@ resource "vault_mount" "intca" {
 
 resource "vault_pki_secret_backend_config_urls" "intca" {
   backend                 = vault_mount.intca.path
-  issuing_certificates    = ["http://vault.service.consul:8200/v1/intca/ca"]
-  crl_distribution_points = ["http://vault.service.consul:8200/v1/intca/crl"]
+  issuing_certificates    = ["https://vault.service.consul:8200/v1/intca/ca"]
+  crl_distribution_points = ["https://vault.service.consul:8200/v1/intca/crl"]
 }
 
 resource "time_rotating" "intca_rotation" {

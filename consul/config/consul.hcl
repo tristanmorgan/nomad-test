@@ -67,3 +67,13 @@ ui_config {
 connect {
   enabled = true
 }
+tls {
+  defaults {
+    ca_file = "./tls/ca_cert.pem"
+    cert_file = "./tls/consul-system-internal-server.pem"
+    key_file = "./tls/consul-system-internal-server-key.pem"
+  }
+  https {
+    verify_incoming = false
+  }
+}
