@@ -1,9 +1,9 @@
 services {
   name = "consul-api"
   tags = [
-    "urlprefix-consul.service.consul/",
+    "urlprefix-consul.service.consul/ proto=tcp",
   ]
-  port = 8500
+  port = 8501
   checks = [
     {
       http     = "http://127.0.0.1:8500/v1/health/checks/consul"

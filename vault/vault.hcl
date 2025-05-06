@@ -11,14 +11,19 @@ storage "raft" {
 }
 
 service_registration "consul" {
-  scheme  = "http"
+  address = "127.0.0.1:8501"
+  scheme  = "https"
   service = "vault-service"
+  tls_ca_file = "./tls/ca_cert.pem"
 }
 
 listener "tcp" {
   address         = "0.0.0.0:8200"
   cluster_address = "{{GetPrivateIP}}:8201"
-  tls_disable     = true
+  # tls_disable     = true
+  tls_disable_client_certs  = true
+  tls_cert_file = "./tls/vault-system-internal-server.pem"
+  tls_key_file  = "./tls/vault-system-internal-server-key.pem"
 
   telemetry {
     unauthenticated_metrics_access = true

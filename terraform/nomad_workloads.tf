@@ -5,7 +5,7 @@ resource "consul_acl_auth_method" "nomad" {
   description  = "JWT auth method for Nomad services and workloads"
 
   config_json = jsonencode({
-    JWKSURL          = "http://${data.consul_service.nomad.service[0].address}:${data.consul_service.nomad.service[0].port}/.well-known/jwks.json",
+    JWKSURL          = "https://127.0.0.1:${data.consul_service.nomad.service[0].port}/.well-known/jwks.json",
     JWTSupportedAlgs = ["RS256"],
     BoundAudiences   = ["consul.io"],
     ClaimMappings = {
@@ -46,7 +46,7 @@ resource "vault_jwt_auth_backend" "nomad" {
   type        = "jwt"
   description = "Authenticate Nomad jobs using JWT"
 
-  jwks_url           = "http://${data.consul_service.nomad.service[0].address}:${data.consul_service.nomad.service[0].port}/.well-known/jwks.json"
+  jwks_url           = "https://127.0.0.1:${data.consul_service.nomad.service[0].port}/.well-known/jwks.json"
   jwt_supported_algs = ["RS256", "EdDSA"]
 }
 

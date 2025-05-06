@@ -8,6 +8,10 @@ leave_on_terminate = true
 
 bind_addr = "{{GetPrivateIP}}"
 
+addresses {
+  http = "{{GetPrivateIP}} 127.0.0.1"
+}
+
 acl {
   enabled = true
 }
@@ -22,7 +26,7 @@ keyring "awskms" {
 }
 
 consul {
-  tags = ["urlprefix-nomad.service.consul/"]
+  tags = ["urlprefix-nomad.service.consul/ proto=tcp"]
 
   service_identity {
     aud = ["consul.io"]
@@ -46,7 +50,7 @@ client {
   }
   # cpu_total_compute = 10404
   options = {
-    "fingerprint.denylist" = "env_aws,env_gce,env_azure"
+    "fingerprint.denylist" = "env_aws,env_gce,env_azure,landlock,plugins_cni"
   }
 }
 
@@ -54,6 +58,15 @@ server {
   enabled              = true
   bootstrap_expect     = 1
   authoritative_region = "global"
+}
+
+tls {
+  http = true
+  rpc  = true
+
+  ca_file   = "./tls/ca_cert.pem"
+  cert_file = "./tls/global-server-nomad.pem"
+  key_file  = "./tls/global-server-nomad-key.pem"
 }
 
 plugin "raw_exec" {

@@ -9,7 +9,7 @@ resource "vault_nomad_secret_backend" "nomad" {
   default_lease_ttl_seconds = "3600"
   max_lease_ttl_seconds     = "7200"
   max_ttl                   = "3600"
-  address                   = "http://${data.consul_service.nomad.service[0].address}:${data.consul_service.nomad.service[0].port}"
+  address                   = "https://${data.consul_service.nomad.service[0].address}:${data.consul_service.nomad.service[0].port}"
   token                     = nomad_acl_token.vault.secret_id
   ttl                       = "600"
 }

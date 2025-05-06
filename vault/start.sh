@@ -22,7 +22,9 @@ do
   sleep 1
 done
 
-echo export VAULT_ADDR=http://$IP_ADDRESS:8200
+echo export VAULT_ADDR=https://$IP_ADDRESS:8200
 echo export VAULT_TOKEN=$VAULT_TOKEN
+echo export VAULT_CACERT=${PWD}/tls/ca_cert.pem
+echo export VAULT_TLS_SERVER_NAME=vault.service.consul
 echo vault operator unseal $VAULT_UNSEAL
 echo cd ../nomad

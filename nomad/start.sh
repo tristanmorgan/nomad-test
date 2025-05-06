@@ -12,7 +12,7 @@ unset VAULT_TOKEN
 
 : > nomad.out
 
-nomad agent -config=nomad.hcl -data-dir=${PWD}/data -encrypt=$(nomad operator gossip keyring generate) -consul-address=$CONSUL_HTTP_ADDR -vault-address=$VAULT_ADDR -bootstrap-expect=1 > nomad.out 2>&1 &
+nomad agent -config=nomad.hcl -data-dir=${PWD}/data -encrypt=$(nomad operator gossip keyring generate) -bootstrap-expect=1 > nomad.out 2>&1 &
 
 while ! fgrep -q 'client: node registration complete' nomad.out
 do
@@ -20,9 +20,13 @@ do
 done
 
 IP_ADDRESS=$(ipconfig getifaddr en0)
-export NOMAD_ADDR=http://${IP_ADDRESS}:4646
+export NOMAD_ADDR=https://${IP_ADDRESS}:4646
+export NOMAD_CACERT=${PWD}/tls/ca_cert.pem
+export NOMAD_TLS_SERVER_NAME=nomad.service.consul
 nomad acl bootstrap > bootstrap.txt
-echo export NOMAD_ADDR=http://${IP_ADDRESS}:4646
+echo export NOMAD_ADDR=https://${IP_ADDRESS}:4646
+echo export NOMAD_CACERT=${PWD}/tls/ca_cert.pem
+echo export NOMAD_TLS_SERVER_NAME=nomad.service.consul
 echo export NOMAD_TOKEN=$(awk '/Secret ID/ {print $NF}' bootstrap.txt)
 echo export TF_VAR_no_deploy=true
 echo cd ../terraform

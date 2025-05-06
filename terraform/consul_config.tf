@@ -71,7 +71,9 @@ resource "consul_certificate_authority" "connect" {
 
   config_json = jsonencode({
     IntermediateCertTTL      = "72h0m0s"
-    Address                  = "http://${data.consul_service.vault.service[0].address}:${data.consul_service.vault.service[0].port}"
+    CAFile                   = "./tls/ca_cert.pem"
+    TLSServerName            = "vault.service.consul"
+    Address                  = "https://${data.consul_service.vault.service[0].address}:${data.consul_service.vault.service[0].port}"
     Token                    = sensitive(data.external.local_info.result.vaulttoken)
     RootPkiPath              = vault_mount.rootca.path
     LeafCertTTL              = "1h0m0s"
