@@ -12,6 +12,15 @@ acl {
   enabled = true
 }
 
+keyring "awskms" {
+  active = true
+
+  # fields specific to awskms
+  region     = "ap-southeast-2"
+  kms_key_id = "alias/vault"
+  endpoint   = "http://kms.service.home.consul"
+}
+
 consul {
   tags = ["urlprefix-nomad.service.consul/"]
 

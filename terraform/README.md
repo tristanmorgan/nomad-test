@@ -40,9 +40,9 @@
 | [consul_service.router](https://registry.terraform.io/providers/hashicorp/consul/latest/docs/resources/service) | resource |
 | [local_file.ca_cert](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [nomad_acl_auth_method.vault](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_auth_method) | resource |
-| [nomad_acl_binding_rule.engineering](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_binding_rule) | resource |
+| [nomad_acl_binding_rule.needed](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_binding_rule) | resource |
 | [nomad_acl_policy.needed](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_policy) | resource |
-| [nomad_acl_role.engineering](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_role) | resource |
+| [nomad_acl_role.needed](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_role) | resource |
 | [nomad_acl_token.vault](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/acl_token) | resource |
 | [nomad_job.everything](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/job) | resource |
 | [nomad_scheduler_config.config](https://registry.terraform.io/providers/hashicorp/nomad/latest/docs/resources/scheduler_config) | resource |

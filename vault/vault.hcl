@@ -1,7 +1,7 @@
 seal "awskms" {
   region     = "ap-southeast-2"
   kms_key_id = "alias/vault"
-  endpoint   = "http://10.10.10.123:8080"
+  endpoint   = "http://kms.service.home.consul"
 }
 
 storage "raft" {
