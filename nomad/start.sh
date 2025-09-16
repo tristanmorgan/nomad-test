@@ -12,6 +12,7 @@ unset VAULT_TOKEN
 
 : > nomad.out
 
+export CONSUL_HTTP_ADDR=127.0.0.1:8501
 nomad agent -config=nomad.hcl -data-dir=${PWD}/data -encrypt=$(nomad operator gossip keyring generate) -bootstrap-expect=1 > nomad.out 2>&1 &
 
 while ! fgrep -q 'client: node registration complete' nomad.out

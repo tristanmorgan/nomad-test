@@ -13,6 +13,9 @@ do
 done
 
 IP_ADDRESS=$(ipconfig getifaddr en0)
+export CONSUL_TLS_SERVER_NAME=consul.service.consul
+export CONSUL_HTTP_ADDR=${IP_ADDRESS}:8501
+export CONSUL_HTTP_SSL=true
 consul acl bootstrap > bootstrap.txt
 export CONSUL_HTTP_TOKEN=$(awk '/SecretID/ {print $NF}' bootstrap.txt)
 consul acl set-agent-token config_file_service_registration $CONSUL_HTTP_TOKEN
