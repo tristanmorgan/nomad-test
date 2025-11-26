@@ -17,7 +17,7 @@ data "vault_policy_document" "consul_ca" {
   }
 
   rule {
-    path         = "${vault_mount.intca.path}/*"
+    path         = "consulca/*"
     capabilities = ["create", "read", "update", "delete", "list", "sudo"]
     description  = "Manage Consul CA"
   }
@@ -46,7 +46,7 @@ data "vault_policy_document" "consul_ca" {
   }
 
   rule {
-    path         = "sys/mounts/${vault_mount.intca.path}*"
+    path         = "sys/mounts/consulca*"
     capabilities = ["update", "read", "delete"]
   }
 }
@@ -77,7 +77,7 @@ resource "consul_certificate_authority" "connect" {
     Token                    = sensitive(data.external.local_info.result.vaulttoken)
     RootPkiPath              = vault_mount.rootca.path
     LeafCertTTL              = "1h0m0s"
-    IntermediatePkiPath      = vault_mount.intca.path
+    IntermediatePkiPath      = "consulca"
     ForceWithoutCrossSigning = true
     PrivateKeyBits           = vault_pki_secret_backend_root_cert.rootca.key_bits
     PrivateKeyType           = vault_pki_secret_backend_root_cert.rootca.key_type
